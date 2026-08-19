@@ -12,7 +12,7 @@ export function useTransactions(filters: TransactionFilters) {
     queryKey: ["transactions", filters],
     queryFn: async () => {
       const { data } = await apiClient.get<PaginatedResponse<Transaction>>(
-        "/api/transactions",
+        "/api/transactions/get-list",
         { params: filters },
       );
       return data;
@@ -26,7 +26,7 @@ export function useCreateTransaction() {
   return useMutation({
     mutationFn: async (input: TransactionInput) => {
       const { data } = await apiClient.post<Transaction>(
-        "/api/transactions",
+        "/api/transactions/create",
         input,
       );
       return data;
@@ -48,9 +48,9 @@ export function useUpdateTransaction() {
       id: number;
       input: TransactionInput;
     }) => {
-      const { data } = await apiClient.put<Transaction>(
-        `/api/transactions/${id}`,
-        input,
+      const { data } = await apiClient.post<Transaction>(
+        "/api/transactions/update",
+        { transaction_id: id, ...input },
       );
       return data;
     },
@@ -65,7 +65,9 @@ export function useDeleteTransaction() {
 
   return useMutation({
     mutationFn: async (id: number) => {
-      await apiClient.delete(`/api/transactions/${id}`);
+      await apiClient.post("/api/transactions/delete", {
+        transaction_id: id,
+      });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["transactions"] });

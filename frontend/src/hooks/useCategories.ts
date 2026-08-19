@@ -6,7 +6,9 @@ export function useCategories() {
   return useQuery<Category[]>({
     queryKey: ["categories"],
     queryFn: async () => {
-      const { data } = await apiClient.get<Category[]>("/api/categories");
+      const { data } = await apiClient.get<Category[]>(
+        "/api/categories/get-list",
+      );
       return data;
     },
     staleTime: 1000 * 60 * 60,

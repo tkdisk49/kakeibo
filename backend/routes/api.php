@@ -1,18 +1,29 @@
 <?php
 
-use App\Http\Controllers\AuthController;
-use App\Http\Controllers\CategoryController;
-use App\Http\Controllers\TransactionController;
+use App\Http\Controllers\Auth\GetUserController;
+use App\Http\Controllers\Auth\LoginController;
+use App\Http\Controllers\Auth\LogoutController;
+use App\Http\Controllers\Auth\RegisterController;
+use App\Http\Controllers\Category\GetCategoryListController;
+use App\Http\Controllers\Transaction\CreateTransactionController;
+use App\Http\Controllers\Transaction\DeleteTransactionController;
+use App\Http\Controllers\Transaction\GetTransactionDetailController;
+use App\Http\Controllers\Transaction\GetTransactionListController;
+use App\Http\Controllers\Transaction\UpdateTransactionController;
 use Illuminate\Support\Facades\Route;
 
-Route::post('/register', [AuthController::class, 'register']);
-Route::post('/login', [AuthController::class, 'login']);
+Route::post('/register', RegisterController::class);
+Route::post('/login', LoginController::class);
 
 Route::middleware('auth:sanctum')->group(function () {
-    Route::post('/logout', [AuthController::class, 'logout']);
-    Route::get('/user', [AuthController::class, 'user']);
+    Route::post('/logout', LogoutController::class);
+    Route::get('/user', GetUserController::class);
 
-    Route::get('/categories', [CategoryController::class, 'index']);
+    Route::get('/categories/get-list', GetCategoryListController::class);
 
-    Route::apiResource('transactions', TransactionController::class);
+    Route::get('/transactions/get-list', GetTransactionListController::class);
+    Route::get('/transactions/get-detail', GetTransactionDetailController::class);
+    Route::post('/transactions/create', CreateTransactionController::class);
+    Route::post('/transactions/update', UpdateTransactionController::class);
+    Route::post('/transactions/delete', DeleteTransactionController::class);
 });
