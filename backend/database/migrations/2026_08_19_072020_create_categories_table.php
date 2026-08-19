@@ -13,10 +13,11 @@ return new class extends Migration
     {
         // 収支カテゴリ。ユーザー管理不可の固定マスタ（CategorySeederでseedする）
         Schema::create('categories', function (Blueprint $table) {
-            $table->id();
-            $table->string('name');
-            $table->enum('type', ['income', 'expense']); // 収入/支出のどちらのカテゴリか
-            $table->timestamps();
+            $table->id()->comment('カテゴリID');
+            $table->string('name')->comment('カテゴリ名');
+            $table->enum('type', ['income', 'expense'])->comment('種別（income: 収入 / expense: 支出）');
+            $table->timestamp('created_at')->nullable()->comment('作成日時');
+            $table->timestamp('updated_at')->nullable()->comment('更新日時');
         });
     }
 

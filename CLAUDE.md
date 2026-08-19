@@ -56,6 +56,18 @@ Next.js（React）+ Laravel で作る家計簿アプリ。このファイルは�
 - フロントエンドのフック・コンポーネントも同様に、何を行っているかをコメントで示す
 - コメントは簡潔に。処理内容の要約に留め、自明なこと（`// idを取得` のような変数名そのままの説明）や長い説明文は避ける
 
+## マイグレーションの規約
+
+- **各カラムに`->comment('...')`で日本語コメントをつける**（DBeaverなどのDBクライアントでテーブル構造を見たときに内容がわかるようにするため）
+- 外部キー（`foreignId()`）にコメントを付ける場合は、`->constrained()`より前に`->comment()`を呼ぶこと（`constrained()`以降は別オブジェクト（FK制約）になり、コメントがカラムに反映されない）
+  ```php
+  // 良い例
+  $table->foreignId('user_id')->comment('登録したユーザーのID')->constrained()->cascadeOnDelete();
+  // 悪い例（コメントが効かない）
+  $table->foreignId('user_id')->constrained()->cascadeOnDelete()->comment('登録したユーザーのID');
+  ```
+- `timestamps()`のショートカットではなく、コメントを付けるために`created_at`/`updated_at`を個別に定義してもよい
+
 ## その他
 
 - 新しいNext.js/Laravelのバージョンは訓練データと異なる挙動をしている可能性があるため、実装前に`frontend/node_modules/next/dist/docs/`や実際にインストールされたLaravelのvendorソースを確認してから進める（`proxy.ts`の件、`statefulApi()`の件はいずれもこの方法で確認済み）。
