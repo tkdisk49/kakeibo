@@ -25,7 +25,8 @@ class CreateTransactionRequest extends FormRequest
         return [
             'type' => ['required', 'in:income,expense'],
             'category_id' => ['nullable', 'exists:categories,id'],
-            'amount' => ['required', 'numeric', 'min:0.01', 'max:99999999.99'],
+            // 円のみ扱う前提のため小数は許可しない
+            'amount' => ['required', 'integer', 'min:1', 'max:99999999'],
             'date' => ['required', 'date'],
             'memo' => ['nullable', 'string', 'max:1000'],
         ];

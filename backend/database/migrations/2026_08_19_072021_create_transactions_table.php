@@ -20,7 +20,8 @@ return new class extends Migration
             // categoriesのtypeと重複するが、category_idがnullになっても収支種別が失われないよう
             // あえて非正規化して持たせている
             $table->enum('type', ['income', 'expense'])->comment('種別（income: 収入 / expense: 支出）');
-            $table->decimal('amount', 10, 2)->unsigned()->comment('金額（符号はtypeで表すため非負）');
+            // 円のみ扱う前提のため小数は持たず整数で保存する（符号はtypeで表すため非負）
+            $table->unsignedInteger('amount')->comment('金額（円単位の整数）');
             $table->date('date')->comment('取引日');
             $table->text('memo')->nullable()->comment('メモ');
             $table->timestamps();

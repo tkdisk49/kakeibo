@@ -19,7 +19,7 @@ export type Transaction = {
   category_id: number | null;
   category: Category | null;
   type: TransactionType;
-  amount: string;
+  amount: number;
   date: string;
   memo: string | null;
   created_at: string;

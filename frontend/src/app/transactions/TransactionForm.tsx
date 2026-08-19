@@ -33,7 +33,9 @@ export function TransactionForm({
   const [categoryId, setCategoryId] = useState<string>(
     initialValue?.category_id ? String(initialValue.category_id) : "",
   );
-  const [amount, setAmount] = useState(initialValue?.amount ?? "");
+  const [amount, setAmount] = useState(
+    initialValue ? String(initialValue.amount) : "",
+  );
   const [date, setDate] = useState(initialValue?.date.slice(0, 10) ?? today());
   const [memo, setMemo] = useState(initialValue?.memo ?? "");
 
@@ -98,12 +100,12 @@ export function TransactionForm({
       </div>
 
       <div className="flex flex-col gap-1">
-        <label className="text-sm font-medium text-zinc-700">金額</label>
+        <label className="text-sm font-medium text-zinc-700">金額（円）</label>
         <Input
           type="number"
           required
-          min={0.01}
-          step="0.01"
+          min={1}
+          step={1}
           value={amount}
           onChange={(e) => setAmount(e.target.value)}
         />

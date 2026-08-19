@@ -3,7 +3,7 @@ import type { Transaction } from "@/lib/types";
 
 // 収入は+、支出は-を付けて金額を表示する
 function formatAmount(transaction: Transaction) {
-  const amount = Number(transaction.amount).toLocaleString("ja-JP");
+  const amount = transaction.amount.toLocaleString("ja-JP");
   return transaction.type === "income" ? `+${amount}` : `-${amount}`;
 }
 
