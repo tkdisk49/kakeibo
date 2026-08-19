@@ -1,10 +1,17 @@
 "use client";
 
-import Link from "next/link";
+import Alert from "@mui/material/Alert";
+import Box from "@mui/material/Box";
+import Button from "@mui/material/Button";
+import Container from "@mui/material/Container";
+import Link from "@mui/material/Link";
+import Paper from "@mui/material/Paper";
+import Stack from "@mui/material/Stack";
+import TextField from "@mui/material/TextField";
+import Typography from "@mui/material/Typography";
+import NextLink from "next/link";
 import { useRouter } from "next/navigation";
 import { FormEvent, useEffect, useState } from "react";
-import { Button } from "@/components/ui/Button";
-import { Input } from "@/components/ui/Input";
 import { useRegister, useUser } from "@/hooks/useAuth";
 import { getErrorMessage } from "@/lib/errors";
 
@@ -38,77 +45,82 @@ export default function RegisterPage() {
   }
 
   return (
-    <div className="flex flex-1 items-center justify-center bg-zinc-50 px-4">
-      <div className="w-full max-w-sm rounded-lg border border-zinc-200 bg-white p-8 shadow-sm">
-        <h1 className="mb-6 text-xl font-semibold text-zinc-900">
+    <Container
+      maxWidth="xs"
+      sx={{
+        minHeight: "100dvh",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        py: 4,
+      }}
+    >
+      <Paper variant="outlined" sx={{ p: 4, width: "100%" }}>
+        <Typography
+          variant="h5"
+          component="h1"
+          sx={{ fontWeight: 600, mb: 3 }}
+        >
           新規登録
-        </h1>
-        <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-          <div className="flex flex-col gap-1">
-            <label className="text-sm font-medium text-zinc-700">
-              名前
-            </label>
-            <Input
+        </Typography>
+        <Box component="form" onSubmit={handleSubmit} noValidate>
+          <Stack spacing={2}>
+            <TextField
+              label="名前"
               required
+              fullWidth
               value={name}
               onChange={(e) => setName(e.target.value)}
             />
-          </div>
-          <div className="flex flex-col gap-1">
-            <label className="text-sm font-medium text-zinc-700">
-              メールアドレス
-            </label>
-            <Input
+            <TextField
+              label="メールアドレス"
               type="email"
               required
+              fullWidth
               value={email}
               onChange={(e) => setEmail(e.target.value)}
             />
-          </div>
-          <div className="flex flex-col gap-1">
-            <label className="text-sm font-medium text-zinc-700">
-              パスワード
-            </label>
-            <Input
+            <TextField
+              label="パスワード"
               type="password"
               required
-              minLength={8}
+              fullWidth
+              slotProps={{ htmlInput: { minLength: 8 } }}
+              helperText="8文字以上で入力してください"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
             />
-          </div>
-          <div className="flex flex-col gap-1">
-            <label className="text-sm font-medium text-zinc-700">
-              パスワード（確認）
-            </label>
-            <Input
+            <TextField
+              label="パスワード（確認）"
               type="password"
               required
-              minLength={8}
+              fullWidth
+              slotProps={{ htmlInput: { minLength: 8 } }}
               value={passwordConfirmation}
               onChange={(e) => setPasswordConfirmation(e.target.value)}
             />
-          </div>
-          {register.isError && (
-            <p className="whitespace-pre-line text-sm text-red-600">
-              {getErrorMessage(register.error)}
-            </p>
-          )}
-          <Button
-            type="submit"
-            disabled={register.isPending}
-            className="mt-2"
-          >
-            {register.isPending ? "登録中..." : "登録する"}
-          </Button>
-        </form>
-        <p className="mt-4 text-center text-sm text-zinc-600">
+            {register.isError && (
+              <Alert severity="error" sx={{ whiteSpace: "pre-line" }}>
+                {getErrorMessage(register.error)}
+              </Alert>
+            )}
+            <Button
+              type="submit"
+              variant="contained"
+              size="large"
+              disabled={register.isPending}
+            >
+              {register.isPending ? "登録中..." : "登録する"}
+            </Button>
+          </Stack>
+        </Box>
+        <Typography variant="body2" color="text.secondary" sx={{ mt: 3 }}>
           すでにアカウントをお持ちの方は{" "}
-          <Link href="/login" className="font-medium text-zinc-900 underline">
+          <Link component={NextLink} href="/login" sx={{ fontWeight: 600 }}>
             ログイン
           </Link>
-        </p>
-      </div>
-    </div>
+        </Typography>
+      </Paper>
+    </Container>
   );
 }

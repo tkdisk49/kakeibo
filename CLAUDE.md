@@ -4,7 +4,11 @@ Next.js（React）+ Laravel で作る家計簿アプリ。このファイルは�
 
 ## 技術スタック
 
-- フロントエンド: Next.js（App Router, TypeScript, Tailwind CSS v4, React）
+- フロントエンド: Next.js（App Router, TypeScript, React）
+- UIコンポーネント: **MUI (Material UI) v9**。Tailwind CSSは廃止し、スタイリングはMUIの`sx`プロパティ・テーマ（`src/lib/theme.ts`）に統一する
+  - MUI v9ではBox/Typography/Stack等に`mb`/`fontWeight`/`justifyContent`のような直接props（旧バージョンのsystem props）が使えなくなっており、必ず`sx={{ ... }}`にまとめる必要がある（Stackの`direction`/`spacing`/`divider`/`useFlexGap`のようなコンポーネント固有propsは除く）
+  - App RouterでのSSR対応として`@mui/material-nextjs`の`AppRouterCacheProvider`（`src/app/providers.tsx`）を使用する
+  - 将来スマホアプリ化する場合もCapacitor等でのWebViewラップを想定しており、React Native化は現状予定していない（MUIはReact Native非対応のため、方針転換時は別途検討）
 - バックエンド: Laravel（PHP）, MySQL
 - 開発環境: Docker Compose（frontend / backend / mysql の3コンテナ、`docker-compose.yml`はルート）
 - 認証: Laravel Sanctum の **SPAクッキー認証**（Bearerトークンは使わない）

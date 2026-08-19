@@ -1,3 +1,6 @@
+import MenuItem from "@mui/material/MenuItem";
+import Stack from "@mui/material/Stack";
+import TextField from "@mui/material/TextField";
 import type { TransactionFilters as Filters, TransactionType } from "@/lib/types";
 
 const MONTHS = Array.from({ length: 12 }, (_, i) => i + 1);
@@ -15,35 +18,44 @@ export function TransactionFilters({
   const years = Array.from({ length: 6 }, (_, i) => currentYear - i);
 
   return (
-    <div className="flex flex-wrap items-center gap-3">
-      <select
-        className="rounded-md border border-zinc-300 px-3 py-2 text-sm"
+    <Stack
+      direction="row"
+      spacing={1.5}
+      useFlexGap
+      sx={{ flexWrap: "wrap" }}
+    >
+      <TextField
+        select
+        size="small"
+        label="年"
         value={filters.year}
-        onChange={(e) =>
-          onChange({ ...filters, year: Number(e.target.value) })
-        }
+        onChange={(e) => onChange({ ...filters, year: Number(e.target.value) })}
+        sx={{ minWidth: 110 }}
       >
         {years.map((year) => (
-          <option key={year} value={year}>
+          <MenuItem key={year} value={year}>
             {year}年
-          </option>
+          </MenuItem>
         ))}
-      </select>
-      <select
-        className="rounded-md border border-zinc-300 px-3 py-2 text-sm"
+      </TextField>
+      <TextField
+        select
+        size="small"
+        label="月"
         value={filters.month}
-        onChange={(e) =>
-          onChange({ ...filters, month: Number(e.target.value) })
-        }
+        onChange={(e) => onChange({ ...filters, month: Number(e.target.value) })}
+        sx={{ minWidth: 90 }}
       >
         {MONTHS.map((month) => (
-          <option key={month} value={month}>
+          <MenuItem key={month} value={month}>
             {month}月
-          </option>
+          </MenuItem>
         ))}
-      </select>
-      <select
-        className="rounded-md border border-zinc-300 px-3 py-2 text-sm"
+      </TextField>
+      <TextField
+        select
+        size="small"
+        label="種別"
         value={filters.type ?? ""}
         onChange={(e) =>
           onChange({
@@ -51,11 +63,12 @@ export function TransactionFilters({
             type: (e.target.value || undefined) as TransactionType | undefined,
           })
         }
+        sx={{ minWidth: 110 }}
       >
-        <option value="">すべて</option>
-        <option value="expense">支出</option>
-        <option value="income">収入</option>
-      </select>
-    </div>
+        <MenuItem value="">すべて</MenuItem>
+        <MenuItem value="expense">支出</MenuItem>
+        <MenuItem value="income">収入</MenuItem>
+      </TextField>
+    </Stack>
   );
 }

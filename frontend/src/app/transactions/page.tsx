@@ -1,8 +1,22 @@
 "use client";
 
+import AddIcon from "@mui/icons-material/Add";
+import AppBar from "@mui/material/AppBar";
+import Box from "@mui/material/Box";
+import Button from "@mui/material/Button";
+import Card from "@mui/material/Card";
+import CircularProgress from "@mui/material/CircularProgress";
+import Container from "@mui/material/Container";
+import Dialog from "@mui/material/Dialog";
+import DialogActions from "@mui/material/DialogActions";
+import DialogContent from "@mui/material/DialogContent";
+import DialogContentText from "@mui/material/DialogContentText";
+import DialogTitle from "@mui/material/DialogTitle";
+import Stack from "@mui/material/Stack";
+import Toolbar from "@mui/material/Toolbar";
+import Typography from "@mui/material/Typography";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { Button } from "@/components/ui/Button";
 import { useLogout, useUser } from "@/hooks/useAuth";
 import { useCategories } from "@/hooks/useCategories";
 import {
@@ -32,7 +46,7 @@ export default function TransactionsPage() {
   const [editingTransaction, setEditingTransaction] = useState<
     Transaction | null | undefined
   >(undefined);
-  // 削除確認ダイアログの表示対象（window.confirmは使わずカスタムダイアログにする方針）
+  // 削除確認ダイアログの表示対象（window.confirmは使わずMUIのDialogにする方針）
   const [deletingTransaction, setDeletingTransaction] =
     useState<Transaction | null>(null);
 
@@ -54,23 +68,61 @@ export default function TransactionsPage() {
   }
 
   return (
-    <div className="mx-auto flex w-full max-w-4xl flex-1 flex-col gap-6 px-4 py-8">
-      <header className="flex items-center justify-between">
-        <h1 className="text-xl font-semibold text-zinc-900">kakeibo</h1>
-        <div className="flex items-center gap-3 text-sm text-zinc-600">
-          {user && <span>{user.name}</span>}
-          <Button variant="secondary" onClick={handleLogout}>
+    <Box sx={{ minHeight: "100dvh", bgcolor: "background.default" }}>
+      <AppBar position="static" color="transparent" elevation={0}>
+        <Toolbar sx={{ borderBottom: 1, borderColor: "divider" }}>
+          <Typography
+            variant="h6"
+            component="h1"
+            sx={{ fontWeight: 700, flexGrow: 1 }}
+          >
+            kakeibo
+          </Typography>
+          {user && (
+            <Typography color="text.secondary" sx={{ mr: 2 }}>
+              {user.name}
+            </Typography>
+          )}
+          <Button color="inherit" onClick={handleLogout}>
             ログアウト
           </Button>
-        </div>
-      </header>
+        </Toolbar>
+      </AppBar>
 
-      <div className="flex items-center justify-between">
-        <TransactionFilters filters={filters} onChange={setFilters} />
-        <Button onClick={() => setEditingTransaction(null)}>
-          収支を登録
-        </Button>
-      </div>
+      <Container maxWidth="md" sx={{ py: 4 }}>
+        <Stack
+          direction={{ xs: "column", sm: "row" }}
+          spacing={2}
+          sx={{
+            justifyContent: "space-between",
+            alignItems: { sm: "center" },
+            mb: 3,
+          }}
+        >
+          <TransactionFilters filters={filters} onChange={setFilters} />
+          <Button
+            variant="contained"
+            startIcon={<AddIcon />}
+            onClick={() => setEditingTransaction(null)}
+          >
+            収支を登録
+          </Button>
+        </Stack>
+
+        <Card variant="outlined">
+          {isLoading ? (
+            <Box sx={{ py: 6, display: "flex", justifyContent: "center" }}>
+              <CircularProgress size={28} />
+            </Box>
+          ) : (
+            <TransactionList
+              transactions={transactions}
+              onEdit={setEditingTransaction}
+              onDelete={setDeletingTransaction}
+            />
+          )}
+        </Card>
+      </Container>
 
       {/* 新規登録・編集共通のフォーム。editingTransactionの有無で挙動を切り替える */}
       {editingTransaction !== undefined && (
@@ -93,49 +145,38 @@ export default function TransactionsPage() {
         />
       )}
 
-      <div className="rounded-lg border border-zinc-200 bg-white p-6">
-        {isLoading ? (
-          <p className="py-8 text-center text-sm text-zinc-500">
-            読み込み中...
-          </p>
-        ) : (
-          <TransactionList
-            transactions={transactions}
-            onEdit={setEditingTransaction}
-            onDelete={setDeletingTransaction}
-          />
-        )}
-      </div>
-
-      {/* 削除確認ダイアログ（アプリ内カスタムモーダル） */}
-      {deletingTransaction && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black/40 px-4">
-          <div className="w-full max-w-sm rounded-lg bg-white p-6 shadow-lg">
-            <p className="text-sm text-zinc-700">
-              この収支を削除しますか？この操作は取り消せません。
-            </p>
-            <div className="mt-4 flex justify-end gap-2">
-              <Button
-                variant="secondary"
-                onClick={() => setDeletingTransaction(null)}
-              >
-                キャンセル
-              </Button>
-              <Button
-                variant="danger"
-                disabled={deleteTransaction.isPending}
-                onClick={() => {
-                  deleteTransaction.mutate(deletingTransaction.id, {
-                    onSuccess: () => setDeletingTransaction(null),
-                  });
-                }}
-              >
-                削除する
-              </Button>
-            </div>
-          </div>
-        </div>
-      )}
-    </div>
+      {/* 削除確認ダイアログ */}
+      <Dialog
+        open={Boolean(deletingTransaction)}
+        onClose={() => setDeletingTransaction(null)}
+        maxWidth="xs"
+        fullWidth
+      >
+        <DialogTitle sx={{ fontWeight: 600 }}>収支の削除</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            この収支を削除しますか？この操作は取り消せません。
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions sx={{ px: 3, pb: 3 }}>
+          <Button color="inherit" onClick={() => setDeletingTransaction(null)}>
+            キャンセル
+          </Button>
+          <Button
+            variant="contained"
+            color="error"
+            disabled={deleteTransaction.isPending}
+            onClick={() => {
+              if (!deletingTransaction) return;
+              deleteTransaction.mutate(deletingTransaction.id, {
+                onSuccess: () => setDeletingTransaction(null),
+              });
+            }}
+          >
+            削除する
+          </Button>
+        </DialogActions>
+      </Dialog>
+    </Box>
   );
 }

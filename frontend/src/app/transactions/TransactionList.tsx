@@ -1,4 +1,16 @@
-import { Button } from "@/components/ui/Button";
+import DeleteOutlineIcon from "@mui/icons-material/DeleteOutlined";
+import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
+import Box from "@mui/material/Box";
+import Chip from "@mui/material/Chip";
+import IconButton from "@mui/material/IconButton";
+import Stack from "@mui/material/Stack";
+import Table from "@mui/material/Table";
+import TableBody from "@mui/material/TableBody";
+import TableCell from "@mui/material/TableCell";
+import TableContainer from "@mui/material/TableContainer";
+import TableHead from "@mui/material/TableHead";
+import TableRow from "@mui/material/TableRow";
+import Typography from "@mui/material/Typography";
 import type { Transaction } from "@/lib/types";
 
 // 収入は+、支出は-を付けて金額を表示する
@@ -19,49 +31,82 @@ export function TransactionList({
 }) {
   if (transactions.length === 0) {
     return (
-      <p className="py-8 text-center text-sm text-zinc-500">
-        この期間の収支データはありません。
-      </p>
+      <Box sx={{ py: 6, textAlign: "center" }}>
+        <Typography color="text.secondary">
+          この期間の収支データはありません。
+        </Typography>
+      </Box>
     );
   }
 
   return (
-    <table className="w-full text-sm">
-      <thead>
-        <tr className="border-b border-zinc-200 text-left text-zinc-500">
-          <th className="py-2 font-medium">日付</th>
-          <th className="py-2 font-medium">カテゴリ</th>
-          <th className="py-2 font-medium">メモ</th>
-          <th className="py-2 pr-2 text-right font-medium">金額</th>
-          <th className="py-2 pl-4 font-medium"></th>
-        </tr>
-      </thead>
-      <tbody>
-        {transactions.map((transaction) => (
-          <tr key={transaction.id} className="border-b border-zinc-100">
-            <td className="py-3 whitespace-nowrap">{transaction.date.slice(0, 10)}</td>
-            <td className="py-3">{transaction.category?.name ?? "未分類"}</td>
-            <td className="py-3 text-zinc-500">{transaction.memo}</td>
-            <td
-              className={`py-3 pr-2 text-right whitespace-nowrap font-medium ${
-                transaction.type === "income" ? "text-blue-600" : "text-red-600"
-              }`}
-            >
-              {formatAmount(transaction)}円
-            </td>
-            <td className="py-3 pl-4 text-right whitespace-nowrap">
-              <div className="flex justify-end gap-2">
-                <Button variant="secondary" onClick={() => onEdit(transaction)}>
-                  編集
-                </Button>
-                <Button variant="danger" onClick={() => onDelete(transaction)}>
-                  削除
-                </Button>
-              </div>
-            </td>
-          </tr>
-        ))}
-      </tbody>
-    </table>
+    <TableContainer>
+      <Table size="small">
+        <TableHead>
+          <TableRow>
+            <TableCell>日付</TableCell>
+            <TableCell>カテゴリ</TableCell>
+            <TableCell>メモ</TableCell>
+            <TableCell align="right">金額</TableCell>
+            <TableCell align="right" />
+          </TableRow>
+        </TableHead>
+        <TableBody>
+          {transactions.map((transaction) => (
+            <TableRow key={transaction.id} hover>
+              <TableCell sx={{ whiteSpace: "nowrap" }}>
+                {transaction.date.slice(0, 10)}
+              </TableCell>
+              <TableCell>
+                <Chip
+                  size="small"
+                  label={transaction.category?.name ?? "未分類"}
+                  variant="outlined"
+                />
+              </TableCell>
+              <TableCell sx={{ color: "text.secondary" }}>
+                {transaction.memo}
+              </TableCell>
+              <TableCell
+                align="right"
+                sx={{
+                  whiteSpace: "nowrap",
+                  fontWeight: 600,
+                  color:
+                    transaction.type === "income"
+                      ? "success.main"
+                      : "error.main",
+                }}
+              >
+                {formatAmount(transaction)}円
+              </TableCell>
+              <TableCell align="right" sx={{ whiteSpace: "nowrap" }}>
+                <Stack
+                  direction="row"
+                  spacing={0.5}
+                  sx={{ justifyContent: "flex-end" }}
+                >
+                  <IconButton
+                    size="small"
+                    aria-label="編集"
+                    onClick={() => onEdit(transaction)}
+                  >
+                    <EditOutlinedIcon fontSize="small" />
+                  </IconButton>
+                  <IconButton
+                    size="small"
+                    color="error"
+                    aria-label="削除"
+                    onClick={() => onDelete(transaction)}
+                  >
+                    <DeleteOutlineIcon fontSize="small" />
+                  </IconButton>
+                </Stack>
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+    </TableContainer>
   );
 }
