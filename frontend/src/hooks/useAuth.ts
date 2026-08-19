@@ -2,6 +2,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { apiClient, ensureCsrfCookie } from "@/lib/api-client";
 import type { User } from "@/lib/types";
 
+// ログイン中ユーザーを取得する。未認証(401)の場合はnullを返す（エラー扱いにしない）
 export function useUser() {
   return useQuery<User | null>({
     queryKey: ["user"],
@@ -22,11 +23,13 @@ export function useLogin() {
 
   return useMutation({
     mutationFn: async (input: { email: string; password: string }) => {
+      // ログイン前に必ずCSRFクッキーを取得しておく
       await ensureCsrfCookie();
       const { data } = await apiClient.post<User>("/api/login", input);
       return data;
     },
     onSuccess: (user) => {
+      // 取得済みのユーザー情報をキャッシュに反映し、再フェッチ待ちなしで画面に反映する
       queryClient.setQueryData(["user"], user);
     },
   });
@@ -47,6 +50,7 @@ export function useRegister() {
       return data;
     },
     onSuccess: (user) => {
+      // 登録と同時にログイン状態になるため、そのままユーザー情報をキャッシュする
       queryClient.setQueryData(["user"], user);
     },
   });

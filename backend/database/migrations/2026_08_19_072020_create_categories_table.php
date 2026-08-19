@@ -11,10 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
+        // 収支カテゴリ。ユーザー管理不可の固定マスタ（CategorySeederでseedする）
         Schema::create('categories', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->enum('type', ['income', 'expense']);
+            $table->enum('type', ['income', 'expense']); // 収入/支出のどちらのカテゴリか
             $table->timestamps();
         });
     }

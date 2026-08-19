@@ -5,6 +5,9 @@ namespace App\Http\Requests\Transaction;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 
+/**
+ * 収支削除リクエストのバリデーション
+ */
 class DeleteTransactionRequest extends FormRequest
 {
     public function authorize(): bool

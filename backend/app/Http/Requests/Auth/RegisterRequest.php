@@ -6,6 +6,9 @@ use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rules\Password;
 
+/**
+ * ユーザー新規登録リクエストのバリデーション
+ */
 class RegisterRequest extends FormRequest
 {
     public function authorize(): bool
@@ -20,7 +23,9 @@ class RegisterRequest extends FormRequest
     {
         return [
             'name' => ['required', 'string', 'max:255'],
+            // メールアドレスの重複登録を防ぐ
             'email' => ['required', 'email', 'unique:users,email'],
+            // password_confirmationとの一致・最低文字数を検証
             'password' => ['required', 'confirmed', Password::min(8)],
         ];
     }

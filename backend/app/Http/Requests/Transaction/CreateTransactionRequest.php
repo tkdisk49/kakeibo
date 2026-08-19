@@ -7,6 +7,9 @@ use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Validator;
 
+/**
+ * 収支登録リクエストのバリデーション（UpdateTransactionRequestの親クラスとしても使う）
+ */
 class CreateTransactionRequest extends FormRequest
 {
     public function authorize(): bool
@@ -37,6 +40,7 @@ class CreateTransactionRequest extends FormRequest
                 return;
             }
 
+            // カテゴリの種類（収入/支出）と収支の種類が食い違っていないか検証する
             $category = Category::find($categoryId);
 
             if ($category && $category->type !== $this->input('type')) {

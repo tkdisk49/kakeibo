@@ -7,6 +7,8 @@ import type {
   TransactionInput,
 } from "@/lib/types";
 
+// 収支一覧を取得する（年月・種別・カテゴリで絞り込み）。
+// filtersが変わるたびに別クエリとして扱われ、自動で再フェッチされる
 export function useTransactions(filters: TransactionFilters) {
   return useQuery<PaginatedResponse<Transaction>>({
     queryKey: ["transactions", filters],
@@ -32,6 +34,7 @@ export function useCreateTransaction() {
       return data;
     },
     onSuccess: () => {
+      // 一覧キャッシュを無効化し、最新の状態を再取得させる
       queryClient.invalidateQueries({ queryKey: ["transactions"] });
     },
   });
@@ -48,6 +51,7 @@ export function useUpdateTransaction() {
       id: number;
       input: TransactionInput;
     }) => {
+      // PUT/PATCHではなくPOSTに統一する方針のため、更新対象のIDはボディに含める
       const { data } = await apiClient.post<Transaction>(
         "/api/transactions/update",
         { transaction_id: id, ...input },
@@ -65,6 +69,7 @@ export function useDeleteTransaction() {
 
   return useMutation({
     mutationFn: async (id: number) => {
+      // DELETEではなくPOSTに統一する方針のため、削除対象のIDはボディに含める
       await apiClient.post("/api/transactions/delete", {
         transaction_id: id,
       });

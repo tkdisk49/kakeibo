@@ -15,6 +15,8 @@ export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
+  // すでにログイン済みの場合は一覧画面へリダイレクト
+  // （proxy.ts側ではこの判定を行わないため、こちらで担う）
   useEffect(() => {
     if (user) {
       router.replace("/transactions");

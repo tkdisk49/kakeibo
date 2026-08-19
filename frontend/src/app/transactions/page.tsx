@@ -16,19 +16,23 @@ import { TransactionFilters } from "./TransactionFilters";
 import { TransactionForm } from "./TransactionForm";
 import { TransactionList } from "./TransactionList";
 
+// 収支の一覧・登録・編集・削除を1画面で行うページ
 export default function TransactionsPage() {
   const router = useRouter();
   const { data: user } = useUser();
   const logout = useLogout();
 
+  // デフォルトは当月を表示
   const now = new Date();
   const [filters, setFilters] = useState<Filters>({
     year: now.getFullYear(),
     month: now.getMonth() + 1,
   });
+  // undefined: フォーム非表示 / null: 新規登録フォーム / Transaction: 編集フォーム
   const [editingTransaction, setEditingTransaction] = useState<
     Transaction | null | undefined
   >(undefined);
+  // 削除確認ダイアログの表示対象（window.confirmは使わずカスタムダイアログにする方針）
   const [deletingTransaction, setDeletingTransaction] =
     useState<Transaction | null>(null);
 
@@ -68,6 +72,7 @@ export default function TransactionsPage() {
         </Button>
       </div>
 
+      {/* 新規登録・編集共通のフォーム。editingTransactionの有無で挙動を切り替える */}
       {editingTransaction !== undefined && (
         <TransactionForm
           categories={categories}
@@ -102,6 +107,7 @@ export default function TransactionsPage() {
         )}
       </div>
 
+      {/* 削除確認ダイアログ（アプリ内カスタムモーダル） */}
       {deletingTransaction && (
         <div className="fixed inset-0 flex items-center justify-center bg-black/40 px-4">
           <div className="w-full max-w-sm rounded-lg bg-white p-6 shadow-lg">

@@ -17,6 +17,7 @@ export default function RegisterPage() {
   const [password, setPassword] = useState("");
   const [passwordConfirmation, setPasswordConfirmation] = useState("");
 
+  // すでにログイン済みの場合は一覧画面へリダイレクト
   useEffect(() => {
     if (user) {
       router.replace("/transactions");

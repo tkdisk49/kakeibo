@@ -19,6 +19,8 @@ return [
 
     'allowed_methods' => ['*'],
 
+    // supports_credentials: true と組み合わせる場合、'*' は使えず
+    // フロントのオリジンを明示的に指定する必要がある
     'allowed_origins' => [env('FRONTEND_URL', 'http://localhost:3000')],
 
     'allowed_origins_patterns' => [],
@@ -29,6 +31,7 @@ return [
 
     'max_age' => 0,
 
+    // Sanctum SPA認証（セッションクッキー）をクロスオリジンで送受信するために必須
     'supports_credentials' => true,
 
 ];

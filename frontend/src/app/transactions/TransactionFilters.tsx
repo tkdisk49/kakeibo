@@ -2,6 +2,7 @@ import type { TransactionFilters as Filters, TransactionType } from "@/lib/types
 
 const MONTHS = Array.from({ length: 12 }, (_, i) => i + 1);
 
+// 年・月・種別で収支一覧を絞り込むフィルターUI
 export function TransactionFilters({
   filters,
   onChange,
@@ -10,6 +11,7 @@ export function TransactionFilters({
   onChange: (filters: Filters) => void;
 }) {
   const currentYear = new Date().getFullYear();
+  // 直近6年分を選択肢にする
   const years = Array.from({ length: 6 }, (_, i) => currentYear - i);
 
   return (

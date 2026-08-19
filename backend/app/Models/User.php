@@ -31,6 +31,7 @@ class User extends Authenticatable
         ];
     }
 
+    // このユーザーが登録した収支一覧
     public function transactions(): HasMany
     {
         return $this->hasMany(Transaction::class);

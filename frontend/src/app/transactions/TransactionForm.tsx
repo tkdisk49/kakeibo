@@ -10,6 +10,8 @@ function today() {
   return new Date().toISOString().slice(0, 10);
 }
 
+// 収支の登録・編集フォーム（共通コンポーネント）。
+// initialValueがあれば編集、なければ新規登録として扱う（呼び出し側で判定）
 export function TransactionForm({
   categories,
   initialValue,
@@ -35,6 +37,7 @@ export function TransactionForm({
   const [date, setDate] = useState(initialValue?.date.slice(0, 10) ?? today());
   const [memo, setMemo] = useState(initialValue?.memo ?? "");
 
+  // 選択中の収支種別（収入/支出）に対応するカテゴリのみ選択肢に出す
   const filteredCategories = categories.filter((c) => c.type === type);
 
   function handleSubmit(event: FormEvent) {

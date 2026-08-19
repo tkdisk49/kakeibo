@@ -5,6 +5,10 @@ namespace App\Http\Requests\Transaction;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 
+/**
+ * 収支詳細取得リクエストのバリデーション
+ * （GET/POSTのみの方針のため、対象IDはルートパラメータではなくここで受け取る）
+ */
 class GetTransactionDetailRequest extends FormRequest
 {
     public function authorize(): bool

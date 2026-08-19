@@ -9,6 +9,7 @@ const variantClasses: Record<Variant, string> = {
   danger: "bg-red-600 text-white hover:bg-red-500",
 };
 
+// 共通ボタン（variantで見た目を切り替える）
 export function Button({
   variant = "primary",
   className = "",

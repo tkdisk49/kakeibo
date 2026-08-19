@@ -5,6 +5,9 @@ namespace App\Http\Requests\Transaction;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 
+/**
+ * 収支一覧取得リクエストのバリデーション（すべて任意の絞り込み条件）
+ */
 class GetTransactionListRequest extends FormRequest
 {
     public function authorize(): bool

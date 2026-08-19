@@ -12,9 +12,12 @@ use App\Http\Controllers\Transaction\GetTransactionListController;
 use App\Http\Controllers\Transaction\UpdateTransactionController;
 use Illuminate\Support\Facades\Route;
 
+// 未ログインでも呼べる認証系エンドポイント
 Route::post('/register', RegisterController::class);
 Route::post('/login', LoginController::class);
 
+// Sanctumのセッション認証が必要なエンドポイント
+// GET/POSTのみを使用し、更新・削除対象のIDはURLではなくFormRequestで受け取る方針
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', LogoutController::class);
     Route::get('/user', GetUserController::class);

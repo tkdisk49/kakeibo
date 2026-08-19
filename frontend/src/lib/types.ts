@@ -12,6 +12,7 @@ export type Category = {
   type: TransactionType;
 };
 
+// バックエンドのTransactionリソース（APIレスポンス）に対応する型
 export type Transaction = {
   id: number;
   user_id: number;
@@ -25,6 +26,7 @@ export type Transaction = {
   updated_at: string;
 };
 
+// LaravelのPaginatorレスポンス（必要なフィールドのみ抜粋）
 export type PaginatedResponse<T> = {
   data: T[];
   current_page: number;
@@ -32,6 +34,7 @@ export type PaginatedResponse<T> = {
   total: number;
 };
 
+// 収支一覧の絞り込み条件（すべて任意）
 export type TransactionFilters = {
   year?: number;
   month?: number;
@@ -39,6 +42,7 @@ export type TransactionFilters = {
   category_id?: number;
 };
 
+// 収支の登録・更新フォームの入力値
 export type TransactionInput = {
   type: TransactionType;
   category_id: number | null;
