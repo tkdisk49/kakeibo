@@ -12,14 +12,13 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('users', function (Blueprint $table) {
-            $table->id()->comment('ユーザーID');
+            $table->id();
             $table->string('name')->comment('名前');
             $table->string('email')->unique()->comment('メールアドレス（ログインID）');
             $table->timestamp('email_verified_at')->nullable()->comment('メール確認日時');
             $table->string('password')->comment('パスワード（ハッシュ化して保存）');
             $table->rememberToken()->comment('ログイン保持用トークン');
-            $table->timestamp('created_at')->nullable()->comment('作成日時');
-            $table->timestamp('updated_at')->nullable()->comment('更新日時');
+            $table->timestamps();
         });
 
         Schema::create('password_reset_tokens', function (Blueprint $table) {
@@ -29,7 +28,7 @@ return new class extends Migration
         });
 
         Schema::create('sessions', function (Blueprint $table) {
-            $table->string('id')->primary()->comment('セッションID');
+            $table->string('id')->primary();
             $table->foreignId('user_id')->nullable()->index()->comment('ログイン中のユーザーID（未ログイン時はNULL）');
             $table->string('ip_address', 45)->nullable()->comment('接続元IPアドレス');
             $table->text('user_agent')->nullable()->comment('ユーザーエージェント');

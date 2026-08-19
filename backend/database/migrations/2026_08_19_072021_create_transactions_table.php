@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('transactions', function (Blueprint $table) {
-            $table->id()->comment('収支ID');
+            $table->id();
             // comment()は制約(constrained)より前に呼ぶ必要がある
             $table->foreignId('user_id')->comment('登録したユーザーのID')->constrained()->cascadeOnDelete();
             // カテゴリが削除されてもtransactionsは残す（種別・金額の記録を消さないため）
@@ -23,8 +23,7 @@ return new class extends Migration
             $table->decimal('amount', 10, 2)->unsigned()->comment('金額（符号はtypeで表すため非負）');
             $table->date('date')->comment('取引日');
             $table->text('memo')->nullable()->comment('メモ');
-            $table->timestamp('created_at')->nullable()->comment('作成日時');
-            $table->timestamp('updated_at')->nullable()->comment('更新日時');
+            $table->timestamps();
 
             // 一覧表示・月次フィルタ用のインデックス
             $table->index(['user_id', 'date']);

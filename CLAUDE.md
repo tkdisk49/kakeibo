@@ -59,6 +59,7 @@ Next.js（React）+ Laravel で作る家計簿アプリ。このファイルは�
 ## マイグレーションの規約
 
 - **各カラムに`->comment('...')`で日本語コメントをつける**（DBeaverなどのDBクライアントでテーブル構造を見たときに内容がわかるようにするため）
+  - ただし`id`（主キー）と`created_at`/`updated_at`は自明なのでコメント不要。`timestamps()`ショートカットのままでよい
 - 外部キー（`foreignId()`）にコメントを付ける場合は、`->constrained()`より前に`->comment()`を呼ぶこと（`constrained()`以降は別オブジェクト（FK制約）になり、コメントがカラムに反映されない）
   ```php
   // 良い例
@@ -66,7 +67,6 @@ Next.js（React）+ Laravel で作る家計簿アプリ。このファイルは�
   // 悪い例（コメントが効かない）
   $table->foreignId('user_id')->constrained()->cascadeOnDelete()->comment('登録したユーザーのID');
   ```
-- `timestamps()`のショートカットではなく、コメントを付けるために`created_at`/`updated_at`を個別に定義してもよい
 
 ## その他
 

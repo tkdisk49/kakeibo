@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('personal_access_tokens', function (Blueprint $table) {
-            $table->id()->comment('トークンID');
+            $table->id();
             // tokenable_type, tokenable_id の2カラムを生成する複合ヘルパーのため
             // 個別のcomment()は付けられない
             $table->morphs('tokenable');
@@ -21,8 +21,7 @@ return new class extends Migration
             $table->text('abilities')->nullable()->comment('許可する権限（スコープ）');
             $table->timestamp('last_used_at')->nullable()->comment('最終利用日時');
             $table->timestamp('expires_at')->nullable()->index()->comment('有効期限');
-            $table->timestamp('created_at')->nullable()->comment('作成日時');
-            $table->timestamp('updated_at')->nullable()->comment('更新日時');
+            $table->timestamps();
         });
     }
 
