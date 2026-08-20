@@ -1,7 +1,6 @@
 "use client";
 
 import AddIcon from "@mui/icons-material/Add";
-import AppBar from "@mui/material/AppBar";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import Card from "@mui/material/Card";
@@ -13,11 +12,8 @@ import DialogContent from "@mui/material/DialogContent";
 import DialogContentText from "@mui/material/DialogContentText";
 import DialogTitle from "@mui/material/DialogTitle";
 import Stack from "@mui/material/Stack";
-import Toolbar from "@mui/material/Toolbar";
-import Typography from "@mui/material/Typography";
-import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { useLogout, useUser } from "@/hooks/useAuth";
+import { AppHeader } from "@/components/ui/AppHeader";
 import { useCategories } from "@/hooks/useCategories";
 import {
   useCreateTransaction,
@@ -32,10 +28,6 @@ import { TransactionList } from "./TransactionList";
 
 // 収支の一覧・登録・編集・削除を1画面で行うページ
 export function TransactionsPage() {
-  const router = useRouter();
-  const { data: user } = useUser();
-  const logout = useLogout();
-
   // デフォルトは当月を表示
   const now = new Date();
   const [filters, setFilters] = useState<Filters>({
@@ -59,35 +51,13 @@ export function TransactionsPage() {
   const categories = categoriesData ?? [];
   const transactions = transactionsData?.data ?? [];
 
-  function handleLogout() {
-    logout.mutate(undefined, { onSuccess: () => router.push("/login") });
-  }
-
   function closeForm() {
     setEditingTransaction(undefined);
   }
 
   return (
     <Box sx={{ minHeight: "100dvh", bgcolor: "background.default" }}>
-      <AppBar position="static" color="transparent" elevation={0}>
-        <Toolbar sx={{ borderBottom: 1, borderColor: "divider" }}>
-          <Typography
-            variant="h6"
-            component="h1"
-            sx={{ fontWeight: 700, flexGrow: 1 }}
-          >
-            kakeibo
-          </Typography>
-          {user && (
-            <Typography color="text.secondary" sx={{ mr: 2 }}>
-              {user.name}
-            </Typography>
-          )}
-          <Button color="inherit" onClick={handleLogout}>
-            ログアウト
-          </Button>
-        </Toolbar>
-      </AppBar>
+      <AppHeader />
 
       <Container maxWidth="md" sx={{ py: 4 }}>
         <Stack
