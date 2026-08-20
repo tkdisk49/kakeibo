@@ -13,7 +13,6 @@ import DialogContentText from "@mui/material/DialogContentText";
 import DialogTitle from "@mui/material/DialogTitle";
 import Stack from "@mui/material/Stack";
 import { useState } from "react";
-import { AppHeader } from "@/components/ui/AppHeader";
 import { useCategories } from "@/hooks/useCategories";
 import {
   useCreateTransaction,
@@ -56,9 +55,7 @@ export function TransactionsPage() {
   }
 
   return (
-    <Box sx={{ minHeight: "100dvh", bgcolor: "background.default" }}>
-      <AppHeader />
-
+    <>
       <Container maxWidth="md" sx={{ py: 4 }}>
         <Stack
           direction={{ xs: "column", sm: "row" }}
@@ -147,6 +144,6 @@ export function TransactionsPage() {
           </Button>
         </DialogActions>
       </Dialog>
-    </Box>
+    </>
   );
 }
