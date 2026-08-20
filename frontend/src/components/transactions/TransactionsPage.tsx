@@ -21,7 +21,11 @@ import {
   useTransactions,
   useUpdateTransaction,
 } from "@/hooks/useTransactions";
-import type { Transaction, TransactionFilters as Filters } from "@/lib/types";
+import type {
+  Transaction,
+  TransactionFilters as Filters,
+  TransactionSummary,
+} from "@/lib/types";
 import { TransactionFilters } from "./TransactionFilters";
 import { TransactionForm } from "./TransactionForm";
 import { TransactionList } from "./TransactionList";
@@ -58,6 +62,14 @@ export function TransactionsPage() {
     "right",
   );
 
+  // summaryは種別・カテゴリの絞り込みに関係なく年月だけで決まる値のため、
+  // それらのセレクター変更時にまで再取得中のSkeletonへ戻さないよう、
+  // 年月ごとに直近取得できた値を保持しておく
+  const [summaryCache, setSummaryCache] = useState<
+    Record<string, TransactionSummary>
+  >({});
+  const periodKey = `${filters.year}-${filters.month}`;
+
   const { data: categoriesData } = useCategories();
   const { data: transactionsData, isLoading } = useTransactions(filters);
   const createTransaction = useCreateTransaction();
@@ -66,6 +78,18 @@ export function TransactionsPage() {
 
   const categories = categoriesData ?? [];
   const transactions = transactionsData?.data ?? [];
+
+  // レンダー中に新しいsummaryが届いていればキャッシュへ反映する
+  // （同一オブジェクトなら条件がfalseになるため無限ループにはならない）
+  if (
+    transactionsData?.summary &&
+    summaryCache[periodKey] !== transactionsData.summary
+  ) {
+    setSummaryCache((prev) => ({
+      ...prev,
+      [periodKey]: transactionsData.summary,
+    }));
+  }
 
   function closeForm() {
     setEditingTransaction(undefined);
@@ -84,7 +108,7 @@ export function TransactionsPage() {
   return (
     <>
       <Container maxWidth="md" sx={{ py: 4 }}>
-        <TransactionSummaryCards summary={transactionsData?.summary} />
+        <TransactionSummaryCards summary={summaryCache[periodKey]} />
 
         <Stack
           direction={{ xs: "column", sm: "row" }}
