@@ -99,6 +99,7 @@ export function TransactionsPage() {
             filters={filters}
             onChange={handleFiltersChange}
             availableYears={transactionsData?.available_years ?? []}
+            categories={categories}
           />
           <Button
             variant="contained"

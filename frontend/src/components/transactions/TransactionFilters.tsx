@@ -5,20 +5,26 @@ import IconButton from "@mui/material/IconButton";
 import MenuItem from "@mui/material/MenuItem";
 import Stack from "@mui/material/Stack";
 import TextField from "@mui/material/TextField";
-import type { TransactionFilters as Filters, TransactionType } from "@/lib/types";
+import type {
+  Category,
+  TransactionFilters as Filters,
+  TransactionType,
+} from "@/lib/types";
 
 const MONTHS = Array.from({ length: 12 }, (_, i) => i + 1);
 
-// 年・月・種別で収支一覧を絞り込むフィルターUI
+// 年・月・種別・カテゴリで収支一覧を絞り込むフィルターUI
 export function TransactionFilters({
   filters,
   onChange,
   availableYears,
+  categories,
 }: {
   filters: Filters;
   onChange: (filters: Filters) => void;
   // 収支が存在する年の一覧（降順）。年セレクターの選択肢に使う
   availableYears: number[];
+  categories: Category[];
 }) {
   const now = new Date();
   const currentYear = now.getFullYear();
@@ -33,6 +39,11 @@ export function TransactionFilters({
   )
     .filter((y) => y <= currentYear)
     .sort((a, b) => b - a);
+
+  // 種別を絞り込んでいる場合はそのカテゴリのみ選択肢に出す（未指定ならすべて）
+  const filteredCategories = filters.type
+    ? categories.filter((c) => c.type === filters.type)
+    : categories;
 
   // 前月・翌月へ移動する（年をまたぐ場合も考慮。当月より先へは進めない）
   function stepMonth(delta: number) {
@@ -115,17 +126,45 @@ export function TransactionFilters({
         size="small"
         label="種別"
         value={filters.type ?? ""}
-        onChange={(e) =>
-          onChange({
-            ...filters,
-            type: (e.target.value || undefined) as TransactionType | undefined,
-          })
-        }
+        onChange={(e) => {
+          const newType = (e.target.value || undefined) as
+            | TransactionType
+            | undefined;
+          // 種別を切り替えたことで選択中のカテゴリが対象外になる場合はクリアする
+          const selectedCategory = categories.find(
+            (c) => c.id === filters.category_id,
+          );
+          const newCategoryId =
+            newType && selectedCategory && selectedCategory.type !== newType
+              ? undefined
+              : filters.category_id;
+          onChange({ ...filters, type: newType, category_id: newCategoryId });
+        }}
         sx={{ minWidth: 110 }}
       >
         <MenuItem value="">すべて</MenuItem>
         <MenuItem value="expense">支出</MenuItem>
         <MenuItem value="income">収入</MenuItem>
+      </TextField>
+      <TextField
+        select
+        size="small"
+        label="カテゴリ"
+        value={filters.category_id ?? ""}
+        onChange={(e) =>
+          onChange({
+            ...filters,
+            category_id: e.target.value ? Number(e.target.value) : undefined,
+          })
+        }
+        sx={{ minWidth: 130 }}
+      >
+        <MenuItem value="">すべて</MenuItem>
+        {filteredCategories.map((category) => (
+          <MenuItem key={category.id} value={category.id}>
+            {category.name}
+          </MenuItem>
+        ))}
       </TextField>
     </Stack>
   );
