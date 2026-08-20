@@ -56,6 +56,19 @@ class TransactionRepository implements TransactionRepositoryInterface
         ];
     }
 
+    public function getAvailableYearsForUser(int $userId): array
+    {
+        // 年セレクターの選択肢用に、収支が存在する年だけを重複なく降順で返す
+        return Transaction::query()
+            ->where('user_id', $userId)
+            ->selectRaw('DISTINCT YEAR(date) as year')
+            ->orderByDesc('year')
+            ->pluck('year')
+            ->map(fn ($year) => (int) $year)
+            ->values()
+            ->all();
+    }
+
     // 年月指定がある場合は日付の範囲検索にする
     // （whereYear/whereMonthは列に関数がかかりインデックスが効かなくなるため使わない）
     private function applyDateRangeFilter(Builder $query, array $filters): void

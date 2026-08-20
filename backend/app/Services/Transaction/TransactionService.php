@@ -17,16 +17,18 @@ class TransactionService
 
     /**
      * ログインユーザー自身の収支一覧を取得する（年月・種別・カテゴリで絞り込み可）。
-     * あわせて対象期間の収入・支出・差引の集計値も返す
+     * あわせて対象期間の収入・支出・差引の集計値と、年セレクター用の登録済み年一覧も返す
      */
     public function getList(int $userId, array $filters): array
     {
         $transactions = $this->transactionRepository->paginateForUser($userId, $filters);
         $summary = $this->transactionRepository->summarizeForUser($userId, $filters);
+        $availableYears = $this->transactionRepository->getAvailableYearsForUser($userId);
 
         return [
             ...$transactions->toArray(),
             'summary' => $summary,
+            'available_years' => $availableYears,
         ];
     }
 

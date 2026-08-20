@@ -95,7 +95,11 @@ export function TransactionsPage() {
             mb: 3,
           }}
         >
-          <TransactionFilters filters={filters} onChange={handleFiltersChange} />
+          <TransactionFilters
+            filters={filters}
+            onChange={handleFiltersChange}
+            availableYears={transactionsData?.available_years ?? []}
+          />
           <Button
             variant="contained"
             startIcon={<AddIcon />}

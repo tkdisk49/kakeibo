@@ -12,21 +12,22 @@ const MONTHS = Array.from({ length: 12 }, (_, i) => i + 1);
 export function TransactionFilters({
   filters,
   onChange,
+  availableYears,
 }: {
   filters: Filters;
   onChange: (filters: Filters) => void;
+  // 収支が存在する年の一覧（降順）。年セレクターの選択肢に使う
+  availableYears: number[];
 }) {
   const now = new Date();
   const currentYear = now.getFullYear();
   const year = filters.year ?? currentYear;
   const month = filters.month ?? now.getMonth() + 1;
 
-  // 直近6年分を選択肢にする（矢印移動で範囲外の年になった場合も選択肢に含める）
-  const years = Array.from({ length: 6 }, (_, i) => currentYear - i);
-  if (!years.includes(year)) {
-    years.push(year);
-    years.sort((a, b) => b - a);
-  }
+  // 記録のある年 + 現在の年 + 現在選択中の年を選択肢にする（重複除去して降順）
+  const years = Array.from(
+    new Set([...availableYears, currentYear, year]),
+  ).sort((a, b) => b - a);
 
   // 前月・翌月へ移動する（年をまたぐ場合も考慮）
   function stepMonth(delta: number) {

@@ -16,6 +16,9 @@ interface TransactionRepositoryInterface
     // user_idでスコープし、対象期間の収入・支出・差引を集計
     public function summarizeForUser(int $userId, array $filters): array;
 
+    // user_idでスコープし、収支が1件でも存在する年の一覧を降順で取得（年セレクターの選択肢用）
+    public function getAvailableYearsForUser(int $userId): array;
+
     // user_idでスコープして1件取得（他人のレコードは取得できない）
     public function findForUser(int $userId, int $transactionId): ?Transaction;
 

@@ -41,9 +41,11 @@ export type TransactionSummary = {
   balance: number;
 };
 
-// 収支一覧取得APIのレスポンス（ページネーションされた一覧 + 期間合計）
+// 収支一覧取得APIのレスポンス（ページネーションされた一覧 + 期間合計 + 登録済み年一覧）
 export type TransactionListResponse = PaginatedResponse<Transaction> & {
   summary: TransactionSummary;
+  // 収支が1件でも存在する年の一覧（降順）。年セレクターの選択肢に使う
+  available_years: number[];
 };
 
 // 収支一覧の絞り込み条件（すべて任意）
