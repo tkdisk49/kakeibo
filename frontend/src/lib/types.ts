@@ -34,6 +34,18 @@ export type PaginatedResponse<T> = {
   total: number;
 };
 
+// 対象期間の収入・支出・差引（一覧の種別・カテゴリ絞り込みには影響されない）
+export type TransactionSummary = {
+  income: number;
+  expense: number;
+  balance: number;
+};
+
+// 収支一覧取得APIのレスポンス（ページネーションされた一覧 + 期間合計）
+export type TransactionListResponse = PaginatedResponse<Transaction> & {
+  summary: TransactionSummary;
+};
+
 // 収支一覧の絞り込み条件（すべて任意）
 export type TransactionFilters = {
   year?: number;

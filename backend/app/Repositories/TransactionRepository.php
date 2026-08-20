@@ -5,6 +5,7 @@ namespace App\Repositories;
 use App\Models\Transaction;
 use App\Repositories\Interfaces\TransactionRepositoryInterface;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Database\Eloquent\Builder;
 
 /**
  * Transactionモデルへのデータアクセスを担うRepository
@@ -18,13 +19,7 @@ class TransactionRepository implements TransactionRepositoryInterface
             ->where('user_id', $userId)
             ->with('category');
 
-        // 年月指定がある場合は日付の範囲検索にする
-        // （whereYear/whereMonthは列に関数がかかりインデックスが効かなくなるため使わない）
-        if (! empty($filters['year']) && ! empty($filters['month'])) {
-            $start = sprintf('%04d-%02d-01', $filters['year'], $filters['month']);
-            $end = date('Y-m-t', strtotime($start));
-            $query->whereBetween('date', [$start, $end]);
-        }
+        $this->applyDateRangeFilter($query, $filters);
 
         // 収支種別（income/expense）で絞り込み
         if (! empty($filters['type'])) {
@@ -37,6 +32,39 @@ class TransactionRepository implements TransactionRepositoryInterface
         }
 
         return $query->orderByDesc('date')->orderByDesc('id')->paginate($perPage);
+    }
+
+    public function summarizeForUser(int $userId, array $filters): array
+    {
+        // 一覧の絞り込み（種別・カテゴリ）には関係なく、対象期間全体の収入・支出を集計する
+        $query = Transaction::query()->where('user_id', $userId);
+
+        $this->applyDateRangeFilter($query, $filters);
+
+        $totalsByType = $query
+            ->selectRaw('type, SUM(amount) as total')
+            ->groupBy('type')
+            ->pluck('total', 'type');
+
+        $income = (int) ($totalsByType['income'] ?? 0);
+        $expense = (int) ($totalsByType['expense'] ?? 0);
+
+        return [
+            'income' => $income,
+            'expense' => $expense,
+            'balance' => $income - $expense,
+        ];
+    }
+
+    // 年月指定がある場合は日付の範囲検索にする
+    // （whereYear/whereMonthは列に関数がかかりインデックスが効かなくなるため使わない）
+    private function applyDateRangeFilter(Builder $query, array $filters): void
+    {
+        if (! empty($filters['year']) && ! empty($filters['month'])) {
+            $start = sprintf('%04d-%02d-01', $filters['year'], $filters['month']);
+            $end = date('Y-m-t', strtotime($start));
+            $query->whereBetween('date', [$start, $end]);
+        }
     }
 
     public function findForUser(int $userId, int $transactionId): ?Transaction

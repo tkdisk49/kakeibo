@@ -24,6 +24,7 @@ import type { Transaction, TransactionFilters as Filters } from "@/lib/types";
 import { TransactionFilters } from "./TransactionFilters";
 import { TransactionForm } from "./TransactionForm";
 import { TransactionList } from "./TransactionList";
+import { TransactionSummaryCards } from "./TransactionSummaryCards";
 
 // 収支の一覧・登録・編集・削除を1画面で行うページ
 export function TransactionsPage() {
@@ -57,6 +58,10 @@ export function TransactionsPage() {
   return (
     <>
       <Container maxWidth="md" sx={{ py: 4 }}>
+        {transactionsData && (
+          <TransactionSummaryCards summary={transactionsData.summary} />
+        )}
+
         <Stack
           direction={{ xs: "column", sm: "row" }}
           spacing={2}

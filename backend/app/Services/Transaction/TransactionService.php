@@ -4,7 +4,6 @@ namespace App\Services\Transaction;
 
 use App\Models\Transaction;
 use App\Repositories\Interfaces\TransactionRepositoryInterface;
-use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 /**
@@ -17,11 +16,18 @@ class TransactionService
     ) {}
 
     /**
-     * ログインユーザー自身の収支一覧を取得する（年月・種別・カテゴリで絞り込み可）
+     * ログインユーザー自身の収支一覧を取得する（年月・種別・カテゴリで絞り込み可）。
+     * あわせて対象期間の収入・支出・差引の集計値も返す
      */
-    public function getList(int $userId, array $filters): LengthAwarePaginator
+    public function getList(int $userId, array $filters): array
     {
-        return $this->transactionRepository->paginateForUser($userId, $filters);
+        $transactions = $this->transactionRepository->paginateForUser($userId, $filters);
+        $summary = $this->transactionRepository->summarizeForUser($userId, $filters);
+
+        return [
+            ...$transactions->toArray(),
+            'summary' => $summary,
+        ];
     }
 
     /**

@@ -1,19 +1,20 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { apiClient } from "@/lib/api-client";
 import type {
-  PaginatedResponse,
   Transaction,
   TransactionFilters,
   TransactionInput,
+  TransactionListResponse,
 } from "@/lib/types";
 
 // 収支一覧を取得する（年月・種別・カテゴリで絞り込み）。
-// filtersが変わるたびに別クエリとして扱われ、自動で再フェッチされる
+// filtersが変わるたびに別クエリとして扱われ、自動で再フェッチされる。
+// レスポンスには一覧と合わせて対象期間の収入・支出・差引の集計（summary）も含まれる
 export function useTransactions(filters: TransactionFilters) {
-  return useQuery<PaginatedResponse<Transaction>>({
+  return useQuery<TransactionListResponse>({
     queryKey: ["transactions", filters],
     queryFn: async () => {
-      const { data } = await apiClient.get<PaginatedResponse<Transaction>>(
+      const { data } = await apiClient.get<TransactionListResponse>(
         "/api/transactions/get-list",
         { params: filters },
       );
