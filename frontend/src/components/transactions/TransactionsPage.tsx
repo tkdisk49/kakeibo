@@ -12,6 +12,7 @@ import DialogContent from "@mui/material/DialogContent";
 import DialogContentText from "@mui/material/DialogContentText";
 import DialogTitle from "@mui/material/DialogTitle";
 import Stack from "@mui/material/Stack";
+import { keyframes } from "@mui/material/styles";
 import { useState } from "react";
 import { useCategories } from "@/hooks/useCategories";
 import {
@@ -25,6 +26,17 @@ import { TransactionFilters } from "./TransactionFilters";
 import { TransactionForm } from "./TransactionForm";
 import { TransactionList } from "./TransactionList";
 import { TransactionSummaryCards } from "./TransactionSummaryCards";
+
+// 翌月方向（右）へ移動したときは右から、前月方向（左）へ移動したときは左から
+// テーブルがスライドインするアニメーション
+const slideFromRight = keyframes`
+  from { opacity: 0; transform: translateX(16px); }
+  to { opacity: 1; transform: translateX(0); }
+`;
+const slideFromLeft = keyframes`
+  from { opacity: 0; transform: translateX(-16px); }
+  to { opacity: 1; transform: translateX(0); }
+`;
 
 // 収支の一覧・登録・編集・削除を1画面で行うページ
 export function TransactionsPage() {
@@ -41,6 +53,10 @@ export function TransactionsPage() {
   // 削除確認ダイアログの表示対象（window.confirmは使わずMUIのDialogにする方針）
   const [deletingTransaction, setDeletingTransaction] =
     useState<Transaction | null>(null);
+  // 年月移動時にテーブルをどちら向きにスライドインさせるか
+  const [slideDirection, setSlideDirection] = useState<"left" | "right">(
+    "right",
+  );
 
   const { data: categoriesData } = useCategories();
   const { data: transactionsData, isLoading } = useTransactions(filters);
@@ -53,6 +69,16 @@ export function TransactionsPage() {
 
   function closeForm() {
     setEditingTransaction(undefined);
+  }
+
+  // 年月が変わる操作の場合、前後どちらへ移動したかを見てスライド方向を決める
+  function handleFiltersChange(newFilters: Filters) {
+    const currentKey = (filters.year ?? 0) * 12 + (filters.month ?? 0);
+    const nextKey = (newFilters.year ?? 0) * 12 + (newFilters.month ?? 0);
+    if (nextKey !== currentKey) {
+      setSlideDirection(nextKey > currentKey ? "right" : "left");
+    }
+    setFilters(newFilters);
   }
 
   return (
@@ -69,7 +95,7 @@ export function TransactionsPage() {
             mb: 3,
           }}
         >
-          <TransactionFilters filters={filters} onChange={setFilters} />
+          <TransactionFilters filters={filters} onChange={handleFiltersChange} />
           <Button
             variant="contained"
             startIcon={<AddIcon />}
@@ -79,19 +105,28 @@ export function TransactionsPage() {
           </Button>
         </Stack>
 
-        <Card variant="outlined">
-          {isLoading ? (
-            <Box sx={{ py: 6, display: "flex", justifyContent: "center" }}>
-              <CircularProgress size={28} />
-            </Box>
-          ) : (
-            <TransactionList
-              transactions={transactions}
-              onEdit={setEditingTransaction}
-              onDelete={setDeletingTransaction}
-            />
-          )}
-        </Card>
+        <Box
+          key={`${filters.year}-${filters.month}`}
+          sx={{
+            animation: `${
+              slideDirection === "right" ? slideFromRight : slideFromLeft
+            } 250ms ease-out`,
+          }}
+        >
+          <Card variant="outlined">
+            {isLoading ? (
+              <Box sx={{ py: 6, display: "flex", justifyContent: "center" }}>
+                <CircularProgress size={28} />
+              </Box>
+            ) : (
+              <TransactionList
+                transactions={transactions}
+                onEdit={setEditingTransaction}
+                onDelete={setDeletingTransaction}
+              />
+            )}
+          </Card>
+        </Box>
       </Container>
 
       {/* 新規登録・編集共通のフォーム。editingTransactionの有無で挙動を切り替える */}

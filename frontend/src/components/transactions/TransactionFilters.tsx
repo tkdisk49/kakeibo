@@ -1,3 +1,6 @@
+import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
+import ChevronRightIcon from "@mui/icons-material/ChevronRight";
+import IconButton from "@mui/material/IconButton";
 import MenuItem from "@mui/material/MenuItem";
 import Stack from "@mui/material/Stack";
 import TextField from "@mui/material/TextField";
@@ -13,22 +16,43 @@ export function TransactionFilters({
   filters: Filters;
   onChange: (filters: Filters) => void;
 }) {
-  const currentYear = new Date().getFullYear();
-  // 直近6年分を選択肢にする
+  const now = new Date();
+  const currentYear = now.getFullYear();
+  const year = filters.year ?? currentYear;
+  const month = filters.month ?? now.getMonth() + 1;
+
+  // 直近6年分を選択肢にする（矢印移動で範囲外の年になった場合も選択肢に含める）
   const years = Array.from({ length: 6 }, (_, i) => currentYear - i);
+  if (!years.includes(year)) {
+    years.push(year);
+    years.sort((a, b) => b - a);
+  }
+
+  // 前月・翌月へ移動する（年をまたぐ場合も考慮）
+  function stepMonth(delta: number) {
+    const totalMonths = year * 12 + (month - 1) + delta;
+    onChange({
+      ...filters,
+      year: Math.floor(totalMonths / 12),
+      month: (((totalMonths % 12) + 12) % 12) + 1,
+    });
+  }
 
   return (
     <Stack
       direction="row"
       spacing={1.5}
       useFlexGap
-      sx={{ flexWrap: "wrap" }}
+      sx={{ flexWrap: "wrap", alignItems: "center" }}
     >
+      <IconButton size="small" aria-label="前月へ" onClick={() => stepMonth(-1)}>
+        <ChevronLeftIcon />
+      </IconButton>
       <TextField
         select
         size="small"
         label="年"
-        value={filters.year}
+        value={year}
         onChange={(e) => onChange({ ...filters, year: Number(e.target.value) })}
         sx={{ minWidth: 110 }}
       >
@@ -42,7 +66,7 @@ export function TransactionFilters({
         select
         size="small"
         label="月"
-        value={filters.month}
+        value={month}
         onChange={(e) => onChange({ ...filters, month: Number(e.target.value) })}
         sx={{ minWidth: 90 }}
       >
@@ -52,6 +76,9 @@ export function TransactionFilters({
           </MenuItem>
         ))}
       </TextField>
+      <IconButton size="small" aria-label="翌月へ" onClick={() => stepMonth(1)}>
+        <ChevronRightIcon />
+      </IconButton>
       <TextField
         select
         size="small"
