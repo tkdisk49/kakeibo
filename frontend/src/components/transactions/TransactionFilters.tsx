@@ -1,5 +1,6 @@
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
+import Button from "@mui/material/Button";
 import IconButton from "@mui/material/IconButton";
 import MenuItem from "@mui/material/MenuItem";
 import Stack from "@mui/material/Stack";
@@ -99,6 +100,16 @@ export function TransactionFilters({
       >
         <ChevronRightIcon />
       </IconButton>
+      <Button
+        size="small"
+        variant="outlined"
+        disabled={year * 12 + month === currentKey}
+        onClick={() =>
+          onChange({ ...filters, year: currentYear, month: currentMonth })
+        }
+      >
+        今月
+      </Button>
       <TextField
         select
         size="small"
