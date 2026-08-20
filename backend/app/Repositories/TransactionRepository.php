@@ -4,8 +4,8 @@ namespace App\Repositories;
 
 use App\Models\Transaction;
 use App\Repositories\Interfaces\TransactionRepositoryInterface;
-use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 /**
  * Transactionモデルへのデータアクセスを担うRepository
