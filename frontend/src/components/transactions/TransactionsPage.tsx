@@ -58,9 +58,7 @@ export function TransactionsPage() {
   return (
     <>
       <Container maxWidth="md" sx={{ py: 4 }}>
-        {transactionsData && (
-          <TransactionSummaryCards summary={transactionsData.summary} />
-        )}
+        <TransactionSummaryCards summary={transactionsData?.summary} />
 
         <Stack
           direction={{ xs: "column", sm: "row" }}
