@@ -21,17 +21,21 @@ export function TransactionFilters({
 }) {
   const now = new Date();
   const currentYear = now.getFullYear();
+  const currentMonth = now.getMonth() + 1;
+  const currentKey = currentYear * 12 + currentMonth;
   const year = filters.year ?? currentYear;
-  const month = filters.month ?? now.getMonth() + 1;
+  const month = filters.month ?? currentMonth;
 
-  // 記録のある年 + 現在の年 + 現在選択中の年を選択肢にする（重複除去して降順）
+  // 記録のある年 + 現在の年 + 現在選択中の年を選択肢にする（未来の年は除外し、重複除去して降順）
   const years = Array.from(
     new Set([...availableYears, currentYear, year]),
-  ).sort((a, b) => b - a);
+  )
+    .filter((y) => y <= currentYear)
+    .sort((a, b) => b - a);
 
-  // 前月・翌月へ移動する（年をまたぐ場合も考慮）
+  // 前月・翌月へ移動する（年をまたぐ場合も考慮。当月より先へは進めない）
   function stepMonth(delta: number) {
-    const totalMonths = year * 12 + (month - 1) + delta;
+    const totalMonths = Math.min(year * 12 + (month - 1) + delta, currentKey - 1);
     onChange({
       ...filters,
       year: Math.floor(totalMonths / 12),
@@ -54,7 +58,13 @@ export function TransactionFilters({
         size="small"
         label="年"
         value={year}
-        onChange={(e) => onChange({ ...filters, year: Number(e.target.value) })}
+        onChange={(e) => {
+          const newYear = Number(e.target.value);
+          // 現在の年に切り替えた際、選択中の月が未来月にならないよう調整する
+          const newMonth =
+            newYear === currentYear ? Math.min(month, currentMonth) : month;
+          onChange({ ...filters, year: newYear, month: newMonth });
+        }}
         sx={{ minWidth: 110 }}
       >
         {years.map((year) => (
@@ -72,12 +82,21 @@ export function TransactionFilters({
         sx={{ minWidth: 90 }}
       >
         {MONTHS.map((month) => (
-          <MenuItem key={month} value={month}>
+          <MenuItem
+            key={month}
+            value={month}
+            disabled={year === currentYear && month > currentMonth}
+          >
             {month}月
           </MenuItem>
         ))}
       </TextField>
-      <IconButton size="small" aria-label="翌月へ" onClick={() => stepMonth(1)}>
+      <IconButton
+        size="small"
+        aria-label="翌月へ"
+        onClick={() => stepMonth(1)}
+        disabled={year * 12 + month >= currentKey}
+      >
         <ChevronRightIcon />
       </IconButton>
       <TextField
