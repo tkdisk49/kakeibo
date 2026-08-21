@@ -19,6 +19,11 @@ function formatAmount(transaction: Transaction) {
   return transaction.type === "income" ? `+${amount}` : `-${amount}`;
 }
 
+// 年月は上部のセレクターで確定済みのため、日のみを表示する
+function formatDay(date: string) {
+  return `${Number(date.slice(8, 10))}日`;
+}
+
 // 収支一覧テーブル
 export function TransactionList({
   transactions,
@@ -55,7 +60,7 @@ export function TransactionList({
           {transactions.map((transaction) => (
             <TableRow key={transaction.id} hover>
               <TableCell sx={{ whiteSpace: "nowrap" }}>
-                {transaction.date.slice(0, 10)}
+                {formatDay(transaction.date)}
               </TableCell>
               <TableCell>
                 <Chip
