@@ -62,6 +62,16 @@ export function TransactionFilters({
       useFlexGap
       sx={{ flexWrap: "wrap", alignItems: "center" }}
     >
+      <Button
+        size="small"
+        variant="outlined"
+        disabled={year * 12 + month === currentKey}
+        onClick={() =>
+          onChange({ ...filters, year: currentYear, month: currentMonth })
+        }
+      >
+        今月
+      </Button>
       <IconButton size="small" aria-label="前月へ" onClick={() => stepMonth(-1)}>
         <ChevronLeftIcon />
       </IconButton>
@@ -111,16 +121,6 @@ export function TransactionFilters({
       >
         <ChevronRightIcon />
       </IconButton>
-      <Button
-        size="small"
-        variant="outlined"
-        disabled={year * 12 + month === currentKey}
-        onClick={() =>
-          onChange({ ...filters, year: currentYear, month: currentMonth })
-        }
-      >
-        今月
-      </Button>
       <TextField
         select
         size="small"
