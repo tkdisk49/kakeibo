@@ -15,7 +15,7 @@ export function useTransactions(filters: TransactionFilters) {
     queryKey: ["transactions", filters],
     queryFn: async () => {
       const { data } = await apiClient.get<TransactionListResponse>(
-        "/api/transactions/get-list",
+        "/api/transactions/get-transaction-list",
         { params: filters },
       );
       return data;
@@ -29,7 +29,7 @@ export function useCreateTransaction() {
   return useMutation({
     mutationFn: async (input: TransactionInput) => {
       const { data } = await apiClient.post<Transaction>(
-        "/api/transactions/create",
+        "/api/transactions/create-transaction",
         input,
       );
       return data;
@@ -54,7 +54,7 @@ export function useUpdateTransaction() {
     }) => {
       // PUT/PATCHではなくPOSTに統一する方針のため、更新対象のIDはボディに含める
       const { data } = await apiClient.post<Transaction>(
-        "/api/transactions/update",
+        "/api/transactions/update-transaction",
         { transaction_id: id, ...input },
       );
       return data;
@@ -71,7 +71,7 @@ export function useDeleteTransaction() {
   return useMutation({
     mutationFn: async (id: number) => {
       // DELETEではなくPOSTに統一する方針のため、削除対象のIDはボディに含める
-      await apiClient.post("/api/transactions/delete", {
+      await apiClient.post("/api/transactions/delete-transaction", {
         transaction_id: id,
       });
     },

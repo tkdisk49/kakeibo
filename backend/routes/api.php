@@ -20,13 +20,13 @@ Route::post('/login', LoginController::class);
 // GET/POSTのみを使用し、更新・削除対象のIDはURLではなくFormRequestで受け取る方針
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', LogoutController::class);
-    Route::get('/user', GetUserController::class);
+    Route::get('/get-user', GetUserController::class);
 
-    Route::get('/categories/get-list', GetCategoryListController::class);
+    Route::get('/categories/get-category-list', GetCategoryListController::class);
 
-    Route::get('/transactions/get-list', GetTransactionListController::class);
-    Route::get('/transactions/get-detail', GetTransactionDetailController::class);
-    Route::post('/transactions/create', CreateTransactionController::class);
-    Route::post('/transactions/update', UpdateTransactionController::class);
-    Route::post('/transactions/delete', DeleteTransactionController::class);
+    Route::get('/transactions/get-transaction-list', GetTransactionListController::class);
+    Route::get('/transactions/get-transaction-detail', GetTransactionDetailController::class);
+    Route::post('/transactions/create-transaction', CreateTransactionController::class);
+    Route::post('/transactions/update-transaction', UpdateTransactionController::class);
+    Route::post('/transactions/delete-transaction', DeleteTransactionController::class);
 });

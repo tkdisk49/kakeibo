@@ -41,7 +41,8 @@ Next.js（React）+ Laravel で作る家計簿アプリ。このファイルは�
 - **HTTPメソッドはGET/POSTのみ**。PUT/PATCH/DELETEは使わない。
   - 一覧・詳細取得はGET、作成・更新・削除はPOST
   - 更新・削除対象のIDは**URLのルートパラメータではなくFormRequestのバリデーション対象**として渡す（GETはクエリパラメータ、POSTはボディに`transaction_id`等を含める）
-  - ルーティング例: `GET /transactions/get-list`, `GET /transactions/get-detail`, `POST /transactions/create`, `POST /transactions/update`, `POST /transactions/delete`
+  - **ルートURIの末尾セグメントはコントローラー名（`Controller`を除いたケバブケース）と一致させる**（例: `GetTransactionListController` → `/get-transaction-list`）。それより前のセグメントは機能ごとに分ける名目で自由に付けてよい（例: `/transactions/get-transaction-list`）
+  - ルーティング例: `GET /transactions/get-transaction-list`, `GET /transactions/get-transaction-detail`, `POST /transactions/create-transaction`, `POST /transactions/update-transaction`, `POST /transactions/delete-transaction`, `GET /get-user`
 - **認可はLaravel Policyを使わず、Repository層のクエリスコープで行う**
   - 例: `TransactionRepository::findForUser(userId, transactionId)`のように、常にログインユーザーのIDでスコープしたクエリでレコードを取得する
   - 対象レコードが存在しない場合と、他人のレコードで所有権がない場合は**区別せず一律404**を返す（存在有無の情報漏洩を避けるため）
@@ -50,7 +51,7 @@ Next.js（React）+ Laravel で作る家計簿アプリ。このファイルは�
 ## フロントエンドの構成方針
 
 - ルートガードは`middleware.ts`ではなく**`proxy.ts`**を使う（Next.js 16で`middleware`は非推奨・`proxy`に名称変更されたため。ファイル名・エクスポート関数名ともに`proxy`）
-  - `proxy.ts`はセッションクッキーの有無を見る簡易ガードに留める。クッキーはローテーションされても残ることがあるため、「クッキーあり→ログイン画面から一覧へ強制リダイレクト」のような逆方向のリダイレクトはproxy側ではやらない（ログアウト後にログイン画面へ戻れなくなるバグの原因になった）。真の認証状態はクライアント側で`/api/user`を叩いて判定し、401時は`useEffect`やaxiosのレスポンスインターセプターでリダイレクトする。
+  - `proxy.ts`はセッションクッキーの有無を見る簡易ガードに留める。クッキーはローテーションされても残ることがあるため、「クッキーあり→ログイン画面から一覧へ強制リダイレクト」のような逆方向のリダイレクトはproxy側ではやらない（ログアウト後にログイン画面へ戻れなくなるバグの原因になった）。真の認証状態はクライアント側で`/api/get-user`を叩いて判定し、401時は`useEffect`やaxiosのレスポンスインターセプターでリダイレクトする。
 - ディレクトリ構成: `src/hooks/`（TanStack Queryのカスタムフック）, `src/lib/`（`api-client.ts`, `types.ts`, `errors.ts`など）, `src/components/ui/`（共通UIコンポーネント）
 - **`app/{route}/page.tsx`は薄いラッパーに留め、実装は`src/components/{feature}/{Feature}Page.tsx`に切り出す**
   - `page.tsx`は`export default function Page() { return <{Feature}Page />; }`のみを持ち、状態やイベントハンドラを持たない（Server Componentのままにできる）

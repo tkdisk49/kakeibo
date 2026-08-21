@@ -8,7 +8,7 @@ export function useUser() {
     queryKey: ["user"],
     queryFn: async () => {
       try {
-        const { data } = await apiClient.get<User>("/api/user");
+        const { data } = await apiClient.get<User>("/api/get-user");
         return data;
       } catch {
         return null;
