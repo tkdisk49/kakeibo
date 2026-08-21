@@ -1,6 +1,7 @@
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutlined";
 import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
+import ImageOutlinedIcon from "@mui/icons-material/ImageOutlined";
 import Box from "@mui/material/Box";
 import Card from "@mui/material/Card";
 import Chip from "@mui/material/Chip";
@@ -17,6 +18,7 @@ import TableRow from "@mui/material/TableRow";
 import Typography from "@mui/material/Typography";
 import { useState } from "react";
 import type { Transaction } from "@/lib/types";
+import { TransactionImage } from "./TransactionImage";
 
 // バックエンドの1ページあたりの取得件数（TransactionRepository::paginateForUserのデフォルト値）と一致させる。
 // 選択肢を1つだけにすることでrows per pageのセレクターは表示されなくなる
@@ -67,7 +69,7 @@ function groupByDate(transactions: Transaction[]) {
   return groups;
 }
 
-// 収支1件分の行。メモがある場合はクリックで下に展開し全文を表示する（Collapsible Table）
+// 収支1件分の行。メモまたは添付画像がある場合はクリックで下に展開する（Collapsible Table）
 function TransactionRow({
   transaction,
   onEdit,
@@ -79,14 +81,15 @@ function TransactionRow({
 }) {
   const [open, setOpen] = useState(false);
   const hasMemo = Boolean(transaction.memo);
+  const isExpandable = hasMemo || transaction.has_image;
 
   return (
     <>
       <TableRow
         hover
-        onClick={hasMemo ? () => setOpen((prev) => !prev) : undefined}
+        onClick={isExpandable ? () => setOpen((prev) => !prev) : undefined}
         sx={{
-          cursor: hasMemo ? "pointer" : "default",
+          cursor: isExpandable ? "pointer" : "default",
           "& > *": { borderBottom: open ? "none" : undefined },
         }}
       >
@@ -98,8 +101,14 @@ function TransactionRow({
           />
         </TableCell>
         <TableCell sx={{ color: "text.secondary" }}>
-          {hasMemo ? (
+          {isExpandable ? (
             <Stack direction="row" spacing={0.5} sx={{ alignItems: "center" }}>
+              {transaction.has_image && (
+                <ImageOutlinedIcon
+                  fontSize="small"
+                  sx={{ flexShrink: 0, color: "action.active" }}
+                />
+              )}
               <Box
                 sx={{
                   overflow: "hidden",
@@ -160,16 +169,26 @@ function TransactionRow({
           </Stack>
         </TableCell>
       </TableRow>
-      {hasMemo && (
+      {isExpandable && (
         <TableRow>
           <TableCell colSpan={COLUMN_COUNT} sx={{ py: 0 }}>
             <Collapse in={open} timeout="auto" unmountOnExit>
-              <Typography
-                color="text.secondary"
-                sx={{ py: 1.5, whiteSpace: "pre-wrap" }}
-              >
-                {transaction.memo}
-              </Typography>
+              <Stack spacing={1.5} sx={{ py: 1.5 }}>
+                {hasMemo && (
+                  <Typography
+                    color="text.secondary"
+                    sx={{ whiteSpace: "pre-wrap" }}
+                  >
+                    {transaction.memo}
+                  </Typography>
+                )}
+                {transaction.has_image && (
+                  <TransactionImage
+                    transactionId={transaction.id}
+                    sx={{ maxWidth: 280, maxHeight: 280, borderRadius: 1 }}
+                  />
+                )}
+              </Stack>
             </Collapse>
           </TableCell>
         </TableRow>

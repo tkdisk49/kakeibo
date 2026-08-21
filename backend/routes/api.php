@@ -7,9 +7,12 @@ use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\Category\GetCategoryListController;
 use App\Http\Controllers\Transaction\CreateTransactionController;
 use App\Http\Controllers\Transaction\DeleteTransactionController;
+use App\Http\Controllers\Transaction\DeleteTransactionImageController;
 use App\Http\Controllers\Transaction\GetTransactionDetailController;
+use App\Http\Controllers\Transaction\GetTransactionImageController;
 use App\Http\Controllers\Transaction\GetTransactionListController;
 use App\Http\Controllers\Transaction\UpdateTransactionController;
+use App\Http\Controllers\Transaction\UploadTransactionImageController;
 use Illuminate\Support\Facades\Route;
 
 // 未ログインでも呼べる認証系エンドポイント
@@ -29,4 +32,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/transactions/create-transaction', CreateTransactionController::class);
     Route::post('/transactions/update-transaction', UpdateTransactionController::class);
     Route::post('/transactions/delete-transaction', DeleteTransactionController::class);
+    Route::post('/transactions/upload-transaction-image', UploadTransactionImageController::class);
+    Route::get('/transactions/get-transaction-image', GetTransactionImageController::class);
+    Route::post('/transactions/delete-transaction-image', DeleteTransactionImageController::class);
 });

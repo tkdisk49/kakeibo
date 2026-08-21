@@ -22,6 +22,8 @@ export type Transaction = {
   amount: number;
   date: string;
   memo: string | null;
+  // 画像が添付されているかどうか。実際の画像データは/transactions/get-transaction-imageで別途取得する
+  has_image: boolean;
   created_at: string;
   updated_at: string;
 };

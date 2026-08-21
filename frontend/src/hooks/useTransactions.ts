@@ -80,3 +80,42 @@ export function useDeleteTransaction() {
     },
   });
 }
+
+// 収支に画像（レシート等）を添付する。既に添付済みの場合は差し替えになる
+export function useUploadTransactionImage() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ id, image }: { id: number; image: File }) => {
+      const formData = new FormData();
+      formData.append("transaction_id", String(id));
+      formData.append("image", image);
+      const { data } = await apiClient.post<Transaction>(
+        "/api/transactions/upload-transaction-image",
+        formData,
+      );
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["transactions"] });
+    },
+  });
+}
+
+// 収支の添付画像を削除する（収支自体は削除しない）
+export function useDeleteTransactionImage() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (id: number) => {
+      const { data } = await apiClient.post<Transaction>(
+        "/api/transactions/delete-transaction-image",
+        { transaction_id: id },
+      );
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["transactions"] });
+    },
+  });
+}

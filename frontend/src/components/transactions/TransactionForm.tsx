@@ -1,26 +1,35 @@
 "use client";
 
+import AddPhotoAlternateOutlinedIcon from "@mui/icons-material/AddPhotoAlternateOutlined";
+import CloseIcon from "@mui/icons-material/Close";
 import Alert from "@mui/material/Alert";
+import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import Dialog from "@mui/material/Dialog";
 import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
 import DialogTitle from "@mui/material/DialogTitle";
+import IconButton from "@mui/material/IconButton";
 import MenuItem from "@mui/material/MenuItem";
 import Stack from "@mui/material/Stack";
 import TextField from "@mui/material/TextField";
 import ToggleButton from "@mui/material/ToggleButton";
 import ToggleButtonGroup from "@mui/material/ToggleButtonGroup";
-import { SubmitEvent, useState } from "react";
+import Typography from "@mui/material/Typography";
+import { ChangeEvent, SubmitEvent, useEffect, useMemo, useState } from "react";
 import { getErrorMessage } from "@/lib/errors";
 import type { Category, Transaction, TransactionInput, TransactionType } from "@/lib/types";
+import { TransactionImage } from "./TransactionImage";
 
 function today() {
   return new Date().toISOString().slice(0, 10);
 }
 
+const IMAGE_PREVIEW_SX = { width: 120, height: 120, borderRadius: 1 };
+
 // 収支の登録・編集フォーム（ダイアログ形式の共通コンポーネント）。
-// initialValueがあれば編集、なければ新規登録として扱う（呼び出し側で判定）
+// initialValueがあれば編集、なければ新規登録として扱う（呼び出し側で判定）。
+// 画像はimageパラメータで意図を伝える: undefined=変更なし, null=削除, File=新規添付/差し替え
 export function TransactionForm({
   categories,
   initialValue,
@@ -33,7 +42,7 @@ export function TransactionForm({
   initialValue?: Transaction;
   isSubmitting: boolean;
   error?: unknown;
-  onSubmit: (input: TransactionInput) => void;
+  onSubmit: (input: TransactionInput, image?: File | null) => void;
   onCancel: () => void;
 }) {
   const [type, setType] = useState<TransactionType>(
@@ -47,19 +56,53 @@ export function TransactionForm({
   );
   const [date, setDate] = useState(initialValue?.date.slice(0, 10) ?? today());
   const [memo, setMemo] = useState(initialValue?.memo ?? "");
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imageRemoved, setImageRemoved] = useState(false);
 
   // 選択中の収支種別（収入/支出）に対応するカテゴリのみ選択肢に出す
   const filteredCategories = categories.filter((c) => c.type === type);
+  // 既存の添付画像 or 新たに選択した画像のどちらかがあればプレビューを表示する
+  const hasVisibleImage =
+    Boolean(imageFile) || (Boolean(initialValue?.has_image) && !imageRemoved);
+
+  // 選択中ファイルのプレビュー用オブジェクトURL。imageFileが変わるたびに再生成する
+  const imagePreviewUrl = useMemo(
+    () => (imageFile ? URL.createObjectURL(imageFile) : null),
+    [imageFile],
+  );
+  // 差し替え・アンマウント時に前のオブジェクトURLを解放する
+  useEffect(() => {
+    return () => {
+      if (imagePreviewUrl) URL.revokeObjectURL(imagePreviewUrl);
+    };
+  }, [imagePreviewUrl]);
+
+  function handleImageChange(event: ChangeEvent<HTMLInputElement>) {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    setImageFile(file);
+    setImageRemoved(false);
+  }
+
+  function handleImageRemove() {
+    setImageFile(null);
+    setImageRemoved(true);
+  }
 
   function handleSubmit(event: SubmitEvent) {
     event.preventDefault();
-    onSubmit({
-      type,
-      category_id: categoryId ? Number(categoryId) : null,
-      amount: Number(amount),
-      date,
-      memo: memo || null,
-    });
+    // 画像が変更されていない場合はundefined（変更なし）を渡す
+    const image = imageFile ?? (imageRemoved ? null : undefined);
+    onSubmit(
+      {
+        type,
+        category_id: categoryId ? Number(categoryId) : null,
+        amount: Number(amount),
+        date,
+        memo: memo || null,
+      },
+      image,
+    );
   }
 
   return (
@@ -130,6 +173,62 @@ export function TransactionForm({
               value={memo ?? ""}
               onChange={(e) => setMemo(e.target.value)}
             />
+
+            <Stack spacing={1}>
+              <Typography variant="body2" sx={{ color: "text.secondary" }}>
+                画像（レシート等）
+              </Typography>
+              <Stack direction="row" spacing={1.5} sx={{ alignItems: "center" }}>
+                {hasVisibleImage && (
+                  <Box sx={{ position: "relative" }}>
+                    {imagePreviewUrl ? (
+                      <Box
+                        component="img"
+                        src={imagePreviewUrl}
+                        alt="選択した画像"
+                        sx={{ ...IMAGE_PREVIEW_SX, objectFit: "cover" }}
+                      />
+                    ) : (
+                      initialValue && (
+                        <TransactionImage
+                          transactionId={initialValue.id}
+                          sx={IMAGE_PREVIEW_SX}
+                        />
+                      )
+                    )}
+                    <IconButton
+                      size="small"
+                      onClick={handleImageRemove}
+                      sx={{
+                        position: "absolute",
+                        top: -8,
+                        right: -8,
+                        bgcolor: "background.paper",
+                        boxShadow: 1,
+                        "&:hover": { bgcolor: "background.paper" },
+                      }}
+                    >
+                      <CloseIcon fontSize="small" />
+                    </IconButton>
+                  </Box>
+                )}
+                <Button
+                  component="label"
+                  variant="outlined"
+                  size="small"
+                  startIcon={<AddPhotoAlternateOutlinedIcon />}
+                >
+                  {hasVisibleImage ? "画像を変更" : "画像を選択"}
+                  <input
+                    type="file"
+                    accept="image/*"
+                    capture="environment"
+                    hidden
+                    onChange={handleImageChange}
+                  />
+                </Button>
+              </Stack>
+            </Stack>
 
             {Boolean(error) && (
               <Alert severity="error" sx={{ whiteSpace: "pre-line" }}>

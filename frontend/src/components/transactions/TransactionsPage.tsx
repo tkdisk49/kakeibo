@@ -18,8 +18,10 @@ import { useCategories } from "@/hooks/useCategories";
 import {
   useCreateTransaction,
   useDeleteTransaction,
+  useDeleteTransactionImage,
   useTransactions,
   useUpdateTransaction,
+  useUploadTransactionImage,
 } from "@/hooks/useTransactions";
 import type {
   Transaction,
@@ -75,6 +77,8 @@ export function TransactionsPage() {
   const createTransaction = useCreateTransaction();
   const updateTransaction = useUpdateTransaction();
   const deleteTransaction = useDeleteTransaction();
+  const uploadTransactionImage = useUploadTransactionImage();
+  const deleteTransactionImage = useDeleteTransactionImage();
 
   const categories = categoriesData ?? [];
   const transactions = transactionsData?.data ?? [];
@@ -175,14 +179,35 @@ export function TransactionsPage() {
           isSubmitting={createTransaction.isPending || updateTransaction.isPending}
           error={createTransaction.error ?? updateTransaction.error}
           onCancel={closeForm}
-          onSubmit={(input) => {
+          onSubmit={(input, image) => {
+            // 画像に変更がある場合、収支の保存が成功した後にそのIDを使って反映する
+            // （undefined: 変更なし, null: 削除, File: 新規添付/差し替え）
+            function applyImageChange(transaction: Transaction) {
+              if (image === undefined) return;
+              if (image === null) {
+                deleteTransactionImage.mutate(transaction.id);
+              } else {
+                uploadTransactionImage.mutate({ id: transaction.id, image });
+              }
+            }
+
             if (editingTransaction) {
               updateTransaction.mutate(
                 { id: editingTransaction.id, input },
-                { onSuccess: closeForm },
+                {
+                  onSuccess: (transaction) => {
+                    applyImageChange(transaction);
+                    closeForm();
+                  },
+                },
               );
             } else {
-              createTransaction.mutate(input, { onSuccess: closeForm });
+              createTransaction.mutate(input, {
+                onSuccess: (transaction) => {
+                  applyImageChange(transaction);
+                  closeForm();
+                },
+              });
             }
           }}
         />

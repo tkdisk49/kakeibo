@@ -5,6 +5,8 @@ namespace App\Services\Transaction;
 use App\Models\Transaction;
 use App\Repositories\Interfaces\TransactionRepositoryInterface;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
 
 /**
  * 収支（Transaction）に関するビジネスロジック
@@ -59,13 +61,63 @@ class TransactionService
     }
 
     /**
-     * ログインユーザー自身の収支を削除する
+     * ログインユーザー自身の収支を削除する。添付画像があればストレージからも削除する
      */
     public function delete(int $userId, int $transactionId): void
     {
         $transaction = $this->findOrFail($userId, $transactionId);
 
+        if ($transaction->image_path) {
+            Storage::disk('local')->delete($transaction->image_path);
+        }
+
         $this->transactionRepository->delete($transaction);
+    }
+
+    /**
+     * 収支に画像を添付する。既に添付済みの場合は古い画像をストレージから削除して差し替える
+     */
+    public function uploadImage(int $userId, int $transactionId, UploadedFile $image): Transaction
+    {
+        $transaction = $this->findOrFail($userId, $transactionId);
+
+        if ($transaction->image_path) {
+            Storage::disk('local')->delete($transaction->image_path);
+        }
+
+        // 他人のuser_idを推測してもアクセスできないよう、ユーザーごとのディレクトリに保存する
+        $path = $image->store("transaction-images/{$userId}", 'local');
+
+        return $this->transactionRepository->update($transaction, ['image_path' => $path]);
+    }
+
+    /**
+     * 収支に添付された画像のストレージ上のパスを取得する。
+     * 画像が添付されていない場合も存在しない場合と区別せず404として扱う
+     */
+    public function getImagePath(int $userId, int $transactionId): string
+    {
+        $transaction = $this->findOrFail($userId, $transactionId);
+
+        if (! $transaction->image_path) {
+            throw new ModelNotFoundException('Transaction image not found.');
+        }
+
+        return $transaction->image_path;
+    }
+
+    /**
+     * 収支に添付された画像を削除する（収支自体は削除しない）
+     */
+    public function deleteImage(int $userId, int $transactionId): Transaction
+    {
+        $transaction = $this->findOrFail($userId, $transactionId);
+
+        if ($transaction->image_path) {
+            Storage::disk('local')->delete($transaction->image_path);
+        }
+
+        return $this->transactionRepository->update($transaction, ['image_path' => null]);
     }
 
     /**
