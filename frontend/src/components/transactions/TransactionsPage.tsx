@@ -148,22 +148,22 @@ export function TransactionsPage() {
             } 250ms ease-out`,
           }}
         >
-          <Card variant="outlined">
-            {isLoading ? (
+          {isLoading ? (
+            <Card variant="outlined">
               <Box sx={{ py: 6, display: "flex", justifyContent: "center" }}>
                 <CircularProgress size={28} />
               </Box>
-            ) : (
-              <TransactionList
-                transactions={transactions}
-                total={transactionsData?.total ?? 0}
-                page={filters.page ?? 1}
-                onPageChange={handlePageChange}
-                onEdit={setEditingTransaction}
-                onDelete={setDeletingTransaction}
-              />
-            )}
-          </Card>
+            </Card>
+          ) : (
+            <TransactionList
+              transactions={transactions}
+              total={transactionsData?.total ?? 0}
+              page={filters.page ?? 1}
+              onPageChange={handlePageChange}
+              onEdit={setEditingTransaction}
+              onDelete={setDeletingTransaction}
+            />
+          )}
         </Box>
       </Container>
 
