@@ -12,7 +12,7 @@ use Illuminate\Pagination\LengthAwarePaginator;
  */
 class TransactionRepository implements TransactionRepositoryInterface
 {
-    public function paginateForUser(int $userId, array $filters, int $perPage = 20): LengthAwarePaginator
+    public function paginateForUser(int $userId, array $filters, int $perPage = 500): LengthAwarePaginator
     {
         // 常にuser_idでスコープし、他人の収支が混ざらないようにする
         $query = Transaction::query()
