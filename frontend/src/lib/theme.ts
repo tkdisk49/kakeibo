@@ -1,6 +1,8 @@
+import { jaJP } from "@mui/material/locale";
 import { createTheme } from "@mui/material/styles";
 
 // アプリ全体で使うMUIテーマ。ライトモード固定（ダークモード自動切替はしない方針）
+// jaJPを適用し、TablePagination等のMUI組み込みラベルを日本語化する
 export const theme = createTheme({
   palette: {
     mode: "light",
@@ -40,4 +42,4 @@ export const theme = createTheme({
       },
     },
   },
-});
+}, jaJP);

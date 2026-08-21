@@ -8,10 +8,16 @@ import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
 import TableCell from "@mui/material/TableCell";
 import TableContainer from "@mui/material/TableContainer";
+import TableFooter from "@mui/material/TableFooter";
 import TableHead from "@mui/material/TableHead";
+import TablePagination from "@mui/material/TablePagination";
 import TableRow from "@mui/material/TableRow";
 import Typography from "@mui/material/Typography";
 import type { Transaction } from "@/lib/types";
+
+// バックエンドの1ページあたりの取得件数（TransactionRepository::paginateForUserのデフォルト値）と一致させる。
+// 選択肢を1つだけにすることでrows per pageのセレクターは表示されなくなる
+const PAGE_SIZE = 500;
 
 // 収入は+、支出は-を付けて金額を表示する
 function formatAmount(transaction: Transaction) {
@@ -27,14 +33,21 @@ function formatDay(date: string) {
 // 収支一覧テーブル
 export function TransactionList({
   transactions,
+  total,
+  page,
+  onPageChange,
   onEdit,
   onDelete,
 }: {
   transactions: Transaction[];
+  total: number;
+  // 1始まりの現在ページ
+  page: number;
+  onPageChange: (page: number) => void;
   onEdit: (transaction: Transaction) => void;
   onDelete: (transaction: Transaction) => void;
 }) {
-  if (transactions.length === 0) {
+  if (total === 0) {
     return (
       <Box sx={{ py: 6, textAlign: "center" }}>
         <Typography color="text.secondary">
@@ -111,6 +124,17 @@ export function TransactionList({
             </TableRow>
           ))}
         </TableBody>
+        <TableFooter>
+          <TableRow>
+            <TablePagination
+              count={total}
+              page={page - 1}
+              rowsPerPage={PAGE_SIZE}
+              rowsPerPageOptions={[PAGE_SIZE]}
+              onPageChange={(_, newPage) => onPageChange(newPage + 1)}
+            />
+          </TableRow>
+        </TableFooter>
       </Table>
     </TableContainer>
   );

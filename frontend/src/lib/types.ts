@@ -54,6 +54,8 @@ export type TransactionFilters = {
   month?: number;
   type?: TransactionType;
   category_id?: number;
+  // 1始まりのページ番号。未指定時はAPI側で1として扱われる
+  page?: number;
 };
 
 // 収支の登録・更新フォームの入力値

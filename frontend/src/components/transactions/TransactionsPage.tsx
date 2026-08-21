@@ -95,14 +95,20 @@ export function TransactionsPage() {
     setEditingTransaction(undefined);
   }
 
-  // 年月が変わる操作の場合、前後どちらへ移動したかを見てスライド方向を決める
+  // 年月が変わる操作の場合、前後どちらへ移動したかを見てスライド方向を決める。
+  // 年月・種別・カテゴリのいずれかを変更したら、絞り込み結果が変わるためページを1に戻す
   function handleFiltersChange(newFilters: Filters) {
     const currentKey = (filters.year ?? 0) * 12 + (filters.month ?? 0);
     const nextKey = (newFilters.year ?? 0) * 12 + (newFilters.month ?? 0);
     if (nextKey !== currentKey) {
       setSlideDirection(nextKey > currentKey ? "right" : "left");
     }
-    setFilters(newFilters);
+    setFilters({ ...newFilters, page: 1 });
+  }
+
+  // ページネーションの操作。他の絞り込み条件は変えない
+  function handlePageChange(page: number) {
+    setFilters((prev) => ({ ...prev, page }));
   }
 
   return (
@@ -150,6 +156,9 @@ export function TransactionsPage() {
             ) : (
               <TransactionList
                 transactions={transactions}
+                total={transactionsData?.total ?? 0}
+                page={filters.page ?? 1}
+                onPageChange={handlePageChange}
                 onEdit={setEditingTransaction}
                 onDelete={setDeletingTransaction}
               />

@@ -25,6 +25,7 @@ class GetTransactionListRequest extends FormRequest
             'month' => ['nullable', 'integer', 'between:1,12'],
             'type' => ['nullable', 'in:income,expense'],
             'category_id' => ['nullable', 'integer'],
+            'page' => ['nullable', 'integer', 'min:1'],
         ];
     }
 }
