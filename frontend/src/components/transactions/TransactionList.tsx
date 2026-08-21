@@ -1,8 +1,10 @@
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutlined";
 import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
 import Box from "@mui/material/Box";
 import Card from "@mui/material/Card";
 import Chip from "@mui/material/Chip";
+import Collapse from "@mui/material/Collapse";
 import IconButton from "@mui/material/IconButton";
 import Stack from "@mui/material/Stack";
 import Table from "@mui/material/Table";
@@ -13,11 +15,15 @@ import TableHead from "@mui/material/TableHead";
 import TablePagination from "@mui/material/TablePagination";
 import TableRow from "@mui/material/TableRow";
 import Typography from "@mui/material/Typography";
+import { useState } from "react";
 import type { Transaction } from "@/lib/types";
 
 // バックエンドの1ページあたりの取得件数（TransactionRepository::paginateForUserのデフォルト値）と一致させる。
 // 選択肢を1つだけにすることでrows per pageのセレクターは表示されなくなる
 const PAGE_SIZE = 500;
+
+// 行を含むテーブルの列数（colSpanやcolgroupで使う）
+const COLUMN_COUNT = 4;
 
 // 日付ごとに分かれたテーブル同士で列幅が揃うよう、共通のcolgroupとして定義する。
 // 日付は見出し（例: 21日（金））で表すため、行側には日付列を持たない
@@ -59,6 +65,117 @@ function groupByDate(transactions: Transaction[]) {
     }
   }
   return groups;
+}
+
+// 収支1件分の行。メモがある場合はクリックで下に展開し全文を表示する（Collapsible Table）
+function TransactionRow({
+  transaction,
+  onEdit,
+  onDelete,
+}: {
+  transaction: Transaction;
+  onEdit: (transaction: Transaction) => void;
+  onDelete: (transaction: Transaction) => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const hasMemo = Boolean(transaction.memo);
+
+  return (
+    <>
+      <TableRow
+        hover
+        onClick={hasMemo ? () => setOpen((prev) => !prev) : undefined}
+        sx={{
+          cursor: hasMemo ? "pointer" : "default",
+          "& > *": { borderBottom: open ? "none" : undefined },
+        }}
+      >
+        <TableCell>
+          <Chip
+            size="small"
+            label={transaction.category?.name ?? "未分類"}
+            variant="outlined"
+          />
+        </TableCell>
+        <TableCell sx={{ color: "text.secondary" }}>
+          {hasMemo ? (
+            <Stack direction="row" spacing={0.5} sx={{ alignItems: "center" }}>
+              <Box
+                sx={{
+                  overflow: "hidden",
+                  textOverflow: "ellipsis",
+                  whiteSpace: "nowrap",
+                  minWidth: 0,
+                  flex: 1,
+                }}
+              >
+                {transaction.memo}
+              </Box>
+              <ExpandMoreIcon
+                fontSize="small"
+                sx={{
+                  flexShrink: 0,
+                  color: "action.active",
+                  transition: "transform 150ms",
+                  transform: open ? "rotate(180deg)" : "none",
+                }}
+              />
+            </Stack>
+          ) : null}
+        </TableCell>
+        <TableCell
+          align="right"
+          sx={{
+            whiteSpace: "nowrap",
+            fontWeight: 600,
+            color:
+              transaction.type === "income" ? "success.main" : "error.main",
+          }}
+        >
+          {formatAmount(transaction)}円
+        </TableCell>
+        <TableCell align="right" sx={{ whiteSpace: "nowrap" }}>
+          <Stack direction="row" spacing={0.5} sx={{ justifyContent: "flex-end" }}>
+            <IconButton
+              size="small"
+              aria-label="編集"
+              onClick={(event) => {
+                event.stopPropagation();
+                onEdit(transaction);
+              }}
+            >
+              <EditOutlinedIcon fontSize="small" />
+            </IconButton>
+            <IconButton
+              size="small"
+              color="error"
+              aria-label="削除"
+              onClick={(event) => {
+                event.stopPropagation();
+                onDelete(transaction);
+              }}
+            >
+              <DeleteOutlineIcon fontSize="small" />
+            </IconButton>
+          </Stack>
+        </TableCell>
+      </TableRow>
+      {hasMemo && (
+        <TableRow>
+          <TableCell colSpan={COLUMN_COUNT} sx={{ py: 0 }}>
+            <Collapse in={open} timeout="auto" unmountOnExit>
+              <Typography
+                color="text.secondary"
+                sx={{ py: 1.5, whiteSpace: "pre-wrap" }}
+              >
+                {transaction.memo}
+              </Typography>
+            </Collapse>
+          </TableCell>
+        </TableRow>
+      )}
+    </>
+  );
 }
 
 // 収支一覧テーブル。日付ごとにカードで区切って表示する
@@ -121,54 +238,12 @@ export function TransactionList({
               <ColumnWidths />
               <TableBody>
                 {group.transactions.map((transaction) => (
-                  <TableRow key={transaction.id} hover>
-                    <TableCell>
-                      <Chip
-                        size="small"
-                        label={transaction.category?.name ?? "未分類"}
-                        variant="outlined"
-                      />
-                    </TableCell>
-                    <TableCell sx={{ color: "text.secondary" }}>
-                      {transaction.memo}
-                    </TableCell>
-                    <TableCell
-                      align="right"
-                      sx={{
-                        whiteSpace: "nowrap",
-                        fontWeight: 600,
-                        color:
-                          transaction.type === "income"
-                            ? "success.main"
-                            : "error.main",
-                      }}
-                    >
-                      {formatAmount(transaction)}円
-                    </TableCell>
-                    <TableCell align="right" sx={{ whiteSpace: "nowrap" }}>
-                      <Stack
-                        direction="row"
-                        spacing={0.5}
-                        sx={{ justifyContent: "flex-end" }}
-                      >
-                        <IconButton
-                          size="small"
-                          aria-label="編集"
-                          onClick={() => onEdit(transaction)}
-                        >
-                          <EditOutlinedIcon fontSize="small" />
-                        </IconButton>
-                        <IconButton
-                          size="small"
-                          color="error"
-                          aria-label="削除"
-                          onClick={() => onDelete(transaction)}
-                        >
-                          <DeleteOutlineIcon fontSize="small" />
-                        </IconButton>
-                      </Stack>
-                    </TableCell>
-                  </TableRow>
+                  <TransactionRow
+                    key={transaction.id}
+                    transaction={transaction}
+                    onEdit={onEdit}
+                    onDelete={onDelete}
+                  />
                 ))}
               </TableBody>
             </Table>

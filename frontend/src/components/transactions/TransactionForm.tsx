@@ -123,6 +123,10 @@ export function TransactionForm({
             <TextField
               label="メモ"
               fullWidth
+              multiline
+              minRows={2}
+              maxRows={6}
+              placeholder="品目ごとに改行して入力できます"
               value={memo ?? ""}
               onChange={(e) => setMemo(e.target.value)}
             />
