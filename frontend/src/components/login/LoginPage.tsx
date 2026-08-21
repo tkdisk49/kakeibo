@@ -11,7 +11,7 @@ import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
 import NextLink from "next/link";
 import { useRouter } from "next/navigation";
-import { FormEvent, useEffect, useState } from "react";
+import { SubmitEvent, useEffect, useState } from "react";
 import { useLogin, useUser } from "@/hooks/useAuth";
 import { getErrorMessage } from "@/lib/errors";
 
@@ -31,7 +31,7 @@ export function LoginPage() {
     }
   }, [user, router]);
 
-  function handleSubmit(event: FormEvent) {
+  function handleSubmit(event: SubmitEvent) {
     event.preventDefault();
     login.mutate(
       { email, password },

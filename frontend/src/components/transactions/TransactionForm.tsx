@@ -11,7 +11,7 @@ import Stack from "@mui/material/Stack";
 import TextField from "@mui/material/TextField";
 import ToggleButton from "@mui/material/ToggleButton";
 import ToggleButtonGroup from "@mui/material/ToggleButtonGroup";
-import { FormEvent, useState } from "react";
+import { SubmitEvent, useState } from "react";
 import { getErrorMessage } from "@/lib/errors";
 import type { Category, Transaction, TransactionInput, TransactionType } from "@/lib/types";
 
@@ -51,7 +51,7 @@ export function TransactionForm({
   // 選択中の収支種別（収入/支出）に対応するカテゴリのみ選択肢に出す
   const filteredCategories = categories.filter((c) => c.type === type);
 
-  function handleSubmit(event: FormEvent) {
+  function handleSubmit(event: SubmitEvent) {
     event.preventDefault();
     onSubmit({
       type,
