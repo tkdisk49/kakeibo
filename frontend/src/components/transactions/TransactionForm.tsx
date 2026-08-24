@@ -16,6 +16,8 @@ import TextField from "@mui/material/TextField";
 import ToggleButton from "@mui/material/ToggleButton";
 import ToggleButtonGroup from "@mui/material/ToggleButtonGroup";
 import Typography from "@mui/material/Typography";
+import { DatePicker } from "@mui/x-date-pickers/DatePicker";
+import dayjs, { Dayjs } from "dayjs";
 import { ChangeEvent, SubmitEvent, useEffect, useMemo, useState } from "react";
 import { getErrorMessage } from "@/lib/errors";
 import type { Category, Transaction, TransactionInput, TransactionType } from "@/lib/types";
@@ -153,14 +155,16 @@ export function TransactionForm({
               onChange={(e) => setAmount(e.target.value)}
             />
 
-            <TextField
+            <DatePicker
               label="日付"
-              type="date"
-              required
-              fullWidth
-              slotProps={{ inputLabel: { shrink: true } }}
-              value={date}
-              onChange={(e) => setDate(e.target.value)}
+              format="YYYY/MM/DD"
+              value={dayjs(date)}
+              onChange={(newValue: Dayjs | null) => {
+                if (newValue?.isValid()) {
+                  setDate(newValue.format("YYYY-MM-DD"));
+                }
+              }}
+              slotProps={{ textField: { required: true, fullWidth: true } }}
             />
 
             <TextField
