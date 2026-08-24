@@ -1,6 +1,9 @@
 "use client";
 
+import CloseIcon from "@mui/icons-material/Close";
 import Box from "@mui/material/Box";
+import Dialog from "@mui/material/Dialog";
+import IconButton from "@mui/material/IconButton";
 import Skeleton from "@mui/material/Skeleton";
 import type { SxProps, Theme } from "@mui/material/styles";
 import { useEffect, useState } from "react";
@@ -18,6 +21,7 @@ export function TransactionImage({
   sx?: SxProps<Theme>;
 }) {
   const [imageUrl, setImageUrl] = useState<string | null>(null);
+  const [enlarged, setEnlarged] = useState(false);
 
   useEffect(() => {
     let objectUrl: string | null = null;
@@ -49,16 +53,47 @@ export function TransactionImage({
   }
 
   return (
-    <Box
-      component="img"
-      src={imageUrl}
-      alt="添付画像"
-      sx={{
-        objectFit: "cover",
-        display: "block",
-        alignSelf: "flex-start",
-        ...sx,
-      }}
-    />
+    <>
+      <Box
+        component="img"
+        src={imageUrl}
+        alt="添付画像"
+        onClick={() => setEnlarged(true)}
+        sx={{
+          objectFit: "cover",
+          display: "block",
+          alignSelf: "flex-start",
+          cursor: "pointer",
+          ...sx,
+        }}
+      />
+      {/* 画像の拡大表示ダイアログ */}
+      <Dialog open={enlarged} onClose={() => setEnlarged(false)} maxWidth="lg">
+        <IconButton
+          onClick={() => setEnlarged(false)}
+          aria-label="閉じる"
+          sx={{
+            position: "absolute",
+            top: 8,
+            right: 8,
+            bgcolor: "background.paper",
+            "&:hover": { bgcolor: "background.paper" },
+          }}
+        >
+          <CloseIcon />
+        </IconButton>
+        <Box
+          component="img"
+          src={imageUrl}
+          alt="添付画像（拡大）"
+          sx={{
+            display: "block",
+            width: "100%",
+            maxHeight: "85vh",
+            objectFit: "contain",
+          }}
+        />
+      </Dialog>
+    </>
   );
 }
