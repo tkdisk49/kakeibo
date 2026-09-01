@@ -22,7 +22,7 @@ Next.js（React）+ Laravel で作る家計簿アプリ。このファイルは�
 
 ## GitHub / Git運用
 
-- 個人アカウント: https://github.com/tkdisk49 、リポジトリ: `tkdisk49/kakeibo`
+- 個人アカウント: https://github.com/drasewkit 、リポジトリ: `drasewkit/kakeibo`
 - `develop`ブランチが**デフォルトブランチ**かつ日常の開発ブランチ
 - `main`は**リリース専用**。`develop → main`のプルリクエストをGitHub上で作成してマージする運用
 - `main`にはブランチ保護ルールを設定済み（PR必須・force push禁止・削除禁止・管理者にも適用）
