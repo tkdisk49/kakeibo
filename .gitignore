@@ -1,3 +1,6 @@
 .DS_Store
 *.log
 .claude/
+
+# 個人用のロードマップ / TODO（各自ローカル管理）
+CLAUDE.local.md
